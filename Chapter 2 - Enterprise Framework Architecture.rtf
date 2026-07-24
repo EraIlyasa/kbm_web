@@ -1,0 +1,727 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2869
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # Chapter 2\
+# Enterprise Framework Architecture\
+\
+---\
+\
+# Overview\
+\
+Salah satu kesalahan terbesar dalam Automation Testing adalah menganggap Playwright sebagai sekumpulan script.\
+\
+Framework automation **bukan kumpulan script**, melainkan sebuah aplikasi perangkat lunak yang memiliki arsitektur, standar coding, dependency management, dan lifecycle seperti software production lainnya.\
+\
+Framework harus mampu berkembang dari:\
+\
+```\
+10 Test Cases\
+```\
+\
+menjadi\
+\
+```\
+10.000+ Test Cases\
+```\
+\
+tanpa perlu mengubah struktur proyek secara fundamental.\
+\
+---\
+\
+# Architecture Goals\
+\
+Framework harus memenuhi tujuan berikut:\
+\
+- Modular\
+- Scalable\
+- Maintainable\
+- Reusable\
+- Readable\
+- Test Independent\
+- Easy Debugging\
+- Parallel Ready\
+- CI/CD Ready\
+\
+Jika salah satu tujuan ini gagal dipenuhi, biaya maintenance akan meningkat secara signifikan seiring bertambahnya jumlah test.\
+\
+---\
+\
+# High Level Architecture\
+\
+```\
+                    +----------------------+\
+                    |      Test Files      |\
+                    +----------+-----------+\
+                               |\
+                               |\
+                    +----------v-----------+\
+                    |      Fixtures        |\
+                    +----------+-----------+\
+                               |\
+        +----------------------+----------------------+\
+        |                      |                      |\
+        |                      |                      |\
++-------v------+      +--------v--------+    +--------v--------+\
+| Page Objects |      | Component Obj.  |    | API Services    |\
++-------+------+      +--------+--------+    +--------+--------+\
+        |                      |                      |\
+        +----------------------+----------------------+\
+                               |\
+                     +---------v---------+\
+                     | Helper / Utility  |\
+                     +---------+---------+\
+                               |\
+                  +------------v------------+\
+                  | Config / Environment    |\
+                  +------------+------------+\
+                               |\
+                     +---------v---------+\
+                     | Playwright Engine |\
+                     +-------------------+\
+```\
+\
+---\
+\
+# Layer Responsibility\
+\
+Setiap layer hanya memiliki SATU tanggung jawab.\
+\
+Misalnya:\
+\
+Test\
+\
+\uc0\u8595 \
+\
+Menjelaskan business flow.\
+\
+Page Object\
+\
+\uc0\u8595 \
+\
+Berinteraksi dengan halaman.\
+\
+Helper\
+\
+\uc0\u8595 \
+\
+Utility.\
+\
+Service\
+\
+\uc0\u8595 \
+\
+API.\
+\
+Config\
+\
+\uc0\u8595 \
+\
+Environment.\
+\
+Jangan pernah mencampur tanggung jawab antar layer.\
+\
+---\
+\
+# Recommended Folder Structure\
+\
+```\
+project/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  playwright.config.ts\
+\
+\uc0\u9500 \u9472 \u9472  package.json\
+\
+\uc0\u9500 \u9472 \u9472  tsconfig.json\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  tests/\
+\
+\uc0\u9474      \u9500 \u9472 \u9472  authentication/\
+\
+\uc0\u9474      \u9500 \u9472 \u9472  dashboard/\
+\
+\uc0\u9474      \u9500 \u9472 \u9472  transaction/\
+\
+\uc0\u9474      \u9500 \u9472 \u9472  inventory/\
+\
+\uc0\u9474      \u9492 \u9472 \u9472  profile/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  pages/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  components/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  fixtures/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  api/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  services/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  builders/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  data/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  constants/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  helpers/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  utils/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  types/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  interfaces/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  config/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  reports/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  scripts/\
+\
+\uc0\u9474 \
+\
+\uc0\u9492 \u9472 \u9472  global/\
+```\
+\
+---\
+\
+# Why Separate Folders?\
+\
+Folder bukan dibuat agar "rapi".\
+\
+Folder dibuat untuk **memisahkan tanggung jawab**.\
+\
+Contoh yang buruk:\
+\
+```\
+pages/\
+\
+Login.ts\
+\
+LoginHelper.ts\
+\
+LoginAPI.ts\
+\
+LoginData.ts\
+\
+LoginFixture.ts\
+\
+```\
+\
+Semuanya bercampur.\
+\
+Lebih baik:\
+\
+```\
+pages/LoginPage.ts\
+\
+helpers/LoginHelper.ts\
+\
+api/AuthApi.ts\
+\
+builders/UserBuilder.ts\
+\
+fixtures/auth.fixture.ts\
+```\
+\
+Engineer dapat menemukan file hanya dari namanya.\
+\
+---\
+\
+# Folder Responsibilities\
+\
+## tests/\
+\
+Berisi business scenario.\
+\
+Tidak boleh berisi:\
+\
+- locator\
+- CSS selector\
+- XPath\
+- helper\
+- utility\
+- API implementation\
+\
+Test harus fokus pada alur bisnis.\
+\
+Contoh:\
+\
+```\
+Login\
+\
+\uc0\u8595 \
+\
+Create Transaction\
+\
+\uc0\u8595 \
+\
+Approve\
+\
+\uc0\u8595 \
+\
+Verify Success\
+```\
+\
+---\
+\
+## pages/\
+\
+Berisi representasi halaman.\
+\
+Contoh:\
+\
+```\
+LoginPage\
+\
+DashboardPage\
+\
+TransactionPage\
+\
+InventoryPage\
+```\
+\
+Page Object bertanggung jawab terhadap:\
+\
+- locator\
+- interaction\
+- navigation\
+\
+Bukan assertion.\
+\
+---\
+\
+## components/\
+\
+Jika satu komponen dipakai banyak halaman, pindahkan ke Component Object.\
+\
+Contoh:\
+\
+```\
+Sidebar\
+\
+Header\
+\
+Navbar\
+\
+Toast\
+\
+Modal\
+\
+DatePicker\
+\
+Pagination\
+\
+Table\
+\
+Filter\
+\
+SearchBar\
+```\
+\
+Komponen ini tidak boleh disalin ke setiap Page Object.\
+\
+---\
+\
+## fixtures/\
+\
+Semua dependency dibuat di sini.\
+\
+Contoh:\
+\
+```\
+authenticatedPage\
+\
+adminPage\
+\
+managerPage\
+\
+guestPage\
+\
+mobilePage\
+```\
+\
+Fixture menggantikan singleton dan global variable.\
+\
+---\
+\
+## services/\
+\
+Berisi business logic yang tidak terkait UI.\
+\
+Misalnya:\
+\
+```\
+Generate Invoice\
+\
+Reset Password\
+\
+Create Customer\
+\
+Seed Product\
+```\
+\
+Service boleh memanggil API.\
+\
+Service boleh membaca database.\
+\
+Service tidak boleh mengklik button.\
+\
+---\
+\
+## api/\
+\
+Semua endpoint.\
+\
+Misalnya:\
+\
+```\
+UserApi\
+\
+ProductApi\
+\
+AuthApi\
+\
+OrderApi\
+```\
+\
+API dipisahkan agar dapat digunakan:\
+\
+- Setup test\
+- Cleanup\
+- Validation\
+\
+---\
+\
+## builders/\
+\
+Semua object builder.\
+\
+Misalnya:\
+\
+```\
+UserBuilder\
+\
+ProductBuilder\
+\
+TransactionBuilder\
+```\
+\
+Builder membuat data random.\
+\
+Builder mengurangi hardcode.\
+\
+---\
+\
+## helpers/\
+\
+Reusable helper.\
+\
+Misalnya:\
+\
+```\
+DateHelper\
+\
+ExcelHelper\
+\
+PDFHelper\
+\
+ScreenshotHelper\
+\
+RandomHelper\
+```\
+\
+Helper tidak boleh mengetahui UI.\
+\
+---\
+\
+## utils/\
+\
+Utility sederhana.\
+\
+Contoh:\
+\
+```\
+sleep()\
+\
+maskEmail()\
+\
+generateUUID()\
+\
+formatCurrency()\
+```\
+\
+Utility harus pure function.\
+\
+---\
+\
+## constants/\
+\
+Berisi nilai tetap.\
+\
+```\
+Roles\
+\
+Permissions\
+\
+URLs\
+\
+Timeout\
+\
+Status\
+```\
+\
+Jangan hardcode string di seluruh project.\
+\
+---\
+\
+## config/\
+\
+Semua konfigurasi.\
+\
+```\
+development\
+\
+staging\
+\
+production\
+\
+uat\
+```\
+\
+Framework harus mendukung multi environment.\
+\
+---\
+\
+# Dependency Flow\
+\
+Dependency hanya boleh mengalir ke bawah.\
+\
+```\
+Test\
+\
+\uc0\u8595 \
+\
+Page\
+\
+\uc0\u8595 \
+\
+Component\
+\
+\uc0\u8595 \
+\
+Helper\
+\
+\uc0\u8595 \
+\
+Utility\
+```\
+\
+Tidak boleh:\
+\
+```\
+Helper\
+\
+\uc0\u8595 \
+\
+Page\
+```\
+\
+atau\
+\
+```\
+Utility\
+\
+\uc0\u8595 \
+\
+Page\
+```\
+\
+karena akan menyebabkan circular dependency.\
+\
+---\
+\
+# Golden Rule\
+\
+Layer atas boleh mengetahui layer bawah.\
+\
+Layer bawah tidak boleh mengetahui layer atas.\
+\
+Contoh:\
+\
+Test mengetahui LoginPage.\
+\
+LoginPage tidak boleh mengetahui LoginTest.\
+\
+---\
+\
+# Business Flow vs Technical Flow\
+\
+Test menjelaskan proses bisnis.\
+\
+Contoh yang baik:\
+\
+```\
+Login\
+\
+\uc0\u8595 \
+\
+Search Product\
+\
+\uc0\u8595 \
+\
+Add To Cart\
+\
+\uc0\u8595 \
+\
+Checkout\
+\
+\uc0\u8595 \
+\
+Verify Order\
+```\
+\
+Bukan:\
+\
+```\
+Click Button\
+\
+Fill Input\
+\
+Click Button\
+\
+Click Button\
+\
+Click Button\
+\
+Wait\
+\
+Click Button\
+```\
+\
+Business flow lebih mudah dipahami dibanding technical flow.\
+\
+---\
+\
+# Single Responsibility Principle\
+\
+Setiap file hanya memiliki satu alasan untuk berubah.\
+\
+Contoh buruk:\
+\
+```\
+LoginPage\
+\
+\uc0\u8595 \
+\
+locator\
+\
+\uc0\u8595 \
+\
+login\
+\
+\uc0\u8595 \
+\
+logout\
+\
+\uc0\u8595 \
+\
+API Login\
+\
+\uc0\u8595 \
+\
+database\
+\
+\uc0\u8595 \
+\
+assertion\
+```\
+\
+Satu file memiliki banyak tanggung jawab.\
+\
+Contoh baik:\
+\
+```\
+LoginPage\
+\
+\uc0\u8595 \
+\
+locator\
+\
+\uc0\u8595 \
+\
+interaction\
+```\
+\
+API berada di `api/`, assertion berada di test, database berada di service atau helper yang sesuai.\
+\
+---\
+\
+# Enterprise Rules\
+\
+Setiap framework wajib mengikuti aturan berikut:\
+\
+1. Tidak ada hardcoded credentials.\
+2. Tidak ada hardcoded URL.\
+3. Tidak ada locator di test.\
+4. Tidak ada assertion di Page Object.\
+5. Tidak ada helper yang memanggil UI.\
+6. Tidak ada duplicate selector.\
+7. Tidak ada duplicate test data.\
+8. Tidak ada dependency antar test.\
+9. Semua test harus bisa dijalankan secara paralel.\
+10. Semua konfigurasi berasal dari environment.\
+\
+---\
+\
+# Architecture Checklist\
+\
+Sebelum framework digunakan oleh tim, pastikan:\
+\
+- [ ] Folder memiliki tanggung jawab yang jelas.\
+- [ ] Dependency mengalir satu arah.\
+- [ ] Tidak ada circular dependency.\
+- [ ] Locator hanya berada di Page Object atau Component Object.\
+- [ ] Assertion hanya berada di test.\
+- [ ] Helper berisi fungsi murni (pure function).\
+- [ ] Service tidak bergantung pada UI.\
+- [ ] Test dapat dijalankan secara independen.\
+- [ ] Framework mendukung multi-browser.\
+- [ ] Framework mendukung multi-environment.\
+- [ ] Framework siap dijalankan di CI/CD.\
+- [ ] Struktur tetap konsisten meskipun jumlah test mencapai ribuan.}

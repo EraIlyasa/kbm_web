@@ -1,0 +1,344 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2869
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # PLAYWRIGHT ENTERPRISE GUIDE\
+\
+Version: 1.0\
+\
+---\
+\
+# Chapter 1\
+# Introduction\
+\
+## Purpose\
+\
+Dokumen ini merupakan standar engineering untuk membangun framework Automation Testing menggunakan **Playwright Test + TypeScript**.\
+\
+Dokumen ini bukan tutorial dasar Playwright, melainkan pedoman pengembangan framework automation yang scalable, maintainable, reusable, dan siap digunakan pada proyek enterprise.\
+\
+Target utama dokumen ini adalah:\
+\
+- QA Automation Engineer\
+- Software Engineer in Test (SET)\
+- Software Development Engineer in Test (SDET)\
+- DevOps Engineer\
+- AI Coding Agent (Antigravity, Cursor, Claude Code, GitHub Copilot, dll.)\
+\
+Framework yang mengikuti pedoman ini harus mampu berkembang dari puluhan hingga ribuan test case tanpa memerlukan perubahan arsitektur besar.\
+\
+---\
+\
+# Objectives\
+\
+Framework harus memenuhi karakteristik berikut.\
+\
+## Reliability\
+\
+Test harus memberikan hasil yang konsisten.\
+\
+Tidak boleh ada flaky test akibat:\
+\
+- Hard wait\
+- Dynamic locator\
+- Shared state\
+- Race condition\
+- Dependency antar test\
+\
+---\
+\
+## Maintainability\
+\
+Framework harus mudah dipelihara.\
+\
+Jika locator berubah pada halaman Login, engineer cukup mengubah satu file Page Object tanpa mengubah seluruh test.\
+\
+---\
+\
+## Scalability\
+\
+Framework harus mampu berkembang dari:\
+\
+20 test case\
+\
+menjadi\
+\
+5000+ test case\
+\
+tanpa perubahan struktur folder.\
+\
+---\
+\
+## Readability\
+\
+Automation bukan hanya dijalankan oleh mesin.\
+\
+Automation juga harus mudah dipahami manusia.\
+\
+Engineer baru harus mampu memahami sebuah test hanya dalam beberapa menit.\
+\
+---\
+\
+## Reusability\
+\
+Logic yang sama tidak boleh ditulis berulang.\
+\
+Contoh:\
+\
+\uc0\u10060  Login dilakukan ulang di setiap test\
+\
+\uc0\u9989  Login menggunakan Storage State\
+\
+atau\
+\
+\uc0\u9989  Login menggunakan reusable fixture\
+\
+---\
+\
+## Performance\
+\
+Execution harus cepat.\
+\
+Target:\
+\
+- Parallel execution\
+- Multi browser\
+- Headless execution\
+- API setup\
+- Minimal UI interaction\
+\
+---\
+\
+## Enterprise Principles\
+\
+Framework mengikuti prinsip berikut.\
+\
+### SOLID\
+\
+Setiap class memiliki satu tanggung jawab.\
+\
+### DRY\
+\
+Don't Repeat Yourself.\
+\
+Tidak boleh ada duplicate locator.\
+\
+Tidak boleh ada duplicate helper.\
+\
+Tidak boleh ada duplicate assertion.\
+\
+---\
+\
+### KISS\
+\
+Keep It Simple.\
+\
+Automation harus sederhana.\
+\
+Jangan membuat abstraction yang tidak diperlukan.\
+\
+---\
+\
+### YAGNI\
+\
+You Aren't Gonna Need It.\
+\
+Jangan membuat helper yang belum pernah digunakan.\
+\
+Jangan membuat BasePage dengan ratusan function.\
+\
+---\
+\
+# Why Playwright\
+\
+Playwright merupakan automation framework modern yang dikembangkan oleh Microsoft.\
+\
+Playwright dirancang untuk menggantikan keterbatasan Selenium.\
+\
+Keunggulan utama Playwright:\
+\
+- Auto Waiting\
+- Web First Assertion\
+- Multiple Browser\
+- Trace Viewer\
+- Video Recording\
+- Screenshot\
+- API Testing\
+- Network Mocking\
+- Mobile Emulation\
+- Parallel Execution\
+- Cross Platform\
+\
+---\
+\
+# Why Not Selenium\
+\
+Selenium merupakan framework yang sangat matang.\
+\
+Namun Playwright menawarkan pendekatan yang lebih modern.\
+\
+Perbandingan:\
+\
+| Selenium | Playwright |\
+|-----------|------------|\
+| Manual Wait | Auto Wait |\
+| External Driver | Built-in |\
+| Tidak ada Trace Viewer | Built-in Trace |\
+| API Terpisah | Built-in API Testing |\
+| Lebih kompleks | Lebih sederhana |\
+\
+Ini bukan berarti Selenium buruk.\
+\
+Selenium tetap sangat baik untuk:\
+\
+- Legacy Project\
+- Grid besar\
+- Integrasi enterprise lama\
+\
+Namun untuk proyek baru, Playwright memberikan developer experience yang lebih baik.\
+\
+---\
+\
+# Why Not Cypress\
+\
+Cypress merupakan framework yang sangat populer.\
+\
+Namun terdapat beberapa keterbatasan.\
+\
+Misalnya:\
+\
+- Tidak benar-benar multi tab\
+- Browser support lebih terbatas\
+- Architecture berbeda\
+\
+Playwright memiliki dukungan yang lebih luas untuk:\
+\
+- Chromium\
+- Firefox\
+- WebKit\
+\
+serta fitur enterprise yang lebih lengkap.\
+\
+---\
+\
+# Why Not Cucumber\
+\
+BDD sangat berguna ketika:\
+\
+Business Analyst\
+\
+\uc0\u8595 \
+\
+Product Owner\
+\
+\uc0\u8595 \
+\
+QA\
+\
+\uc0\u8595 \
+\
+Developer\
+\
+semuanya aktif menulis dan meninjau Gherkin.\
+\
+Namun pada sebagian besar tim modern:\
+\
+- QA menulis automation\
+- Developer membaca code TypeScript\
+- Business tidak pernah membuka repository automation\
+\
+Dalam kondisi tersebut, penggunaan Gherkin sering menambah biaya maintenance tanpa memberikan manfaat yang sebanding.\
+\
+Sebagai alternatif, Playwright menyediakan:\
+\
+test()\
+\
+test.describe()\
+\
+test.step()\
+\
+yang menghasilkan test tetap mudah dibaca tanpa menambahkan lapisan abstraksi tambahan.\
+\
+---\
+\
+# Testing Philosophy\
+\
+Automation Testing bukan bertujuan menghilangkan Manual Testing.\
+\
+Automation bertujuan:\
+\
+- mempercepat feedback,\
+- meningkatkan coverage,\
+- mengurangi pekerjaan repetitif,\
+- menjaga kualitas software.\
+\
+Automation bukan pengganti exploratory testing.\
+\
+Automation bukan pengganti usability testing.\
+\
+Automation bukan pengganti UAT.\
+\
+Automation adalah alat untuk memastikan regression dapat dijalankan secara cepat dan konsisten.\
+\
+---\
+\
+# Characteristics of Good Automation Test\
+\
+Sebuah automation test yang baik memiliki karakteristik berikut.\
+\
+\uc0\u9989  Independent\
+\
+Tidak bergantung pada test lain.\
+\
+---\
+\
+\uc0\u9989  Repeatable\
+\
+Hasil harus sama setiap dijalankan.\
+\
+---\
+\
+\uc0\u9989  Fast\
+\
+Semakin cepat semakin baik.\
+\
+---\
+\
+\uc0\u9989  Deterministic\
+\
+Tidak menghasilkan output acak.\
+\
+---\
+\
+\uc0\u9989  Easy to Read\
+\
+Test dapat dipahami tanpa membaca seluruh framework.\
+\
+---\
+\
+\uc0\u9989  Easy to Debug\
+\
+Ketika gagal, engineer dapat menemukan penyebabnya dalam beberapa menit.\
+\
+---\
+\
+# Definition of Done\
+\
+Sebuah automation test dianggap selesai apabila memenuhi seluruh kriteria berikut.\
+\
+- Test berhasil dijalankan.\
+- Locator stabil.\
+- Tidak menggunakan hard wait.\
+- Assertion jelas.\
+- Menghasilkan report.\
+- Mendukung retry.\
+- Mendukung trace.\
+- Mendukung screenshot on failure.\
+- Mendukung video on retry.\
+- Aman dijalankan secara paralel.\
+- Tidak mempengaruhi test lain.\
+\
+Jika salah satu poin di atas belum terpenuhi, maka automation belum dianggap production-ready.}

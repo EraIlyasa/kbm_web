@@ -1,0 +1,687 @@
+# Chapter 17 — Reporting, Logging & Observability (Enterprise Edition)
+
+> **Goal:** Build an automation framework that produces actionable evidence for every test execution, enabling fast debugging, root cause analysis, and continuous quality improvement.
+
+---
+
+# Overview
+
+Automation does not end when a test passes or fails.
+
+A mature automation framework must answer:
+
+- What failed?
+- Why did it fail?
+- Where did it fail?
+- Can it be reproduced?
+- Is it an application defect or a test defect?
+
+Reporting and observability transform raw execution results into useful engineering insights.
+
+---
+
+# Observability Pyramid
+
+```text
+Business Report
+
+↓
+
+Test Report
+
+↓
+
+Logs
+
+↓
+
+Screenshots
+
+↓
+
+Videos
+
+↓
+
+Trace
+
+↓
+
+Network
+
+↓
+
+Browser Console
+```
+
+Every layer provides additional debugging context.
+
+---
+
+# OBS-001
+
+## Rule
+
+Every failed test must provide sufficient evidence.
+
+## Severity
+
+Critical
+
+A developer should be able to investigate a failure without rerunning the test whenever possible.
+
+---
+
+# OBS-002
+
+## Rule
+
+Use Playwright HTML Report for local execution.
+
+## Benefits
+
+- Fast navigation
+- Screenshots
+- Trace integration
+- Execution timeline
+
+Ideal for local development and quick debugging.
+
+---
+
+# OBS-003
+
+## Rule
+
+Use Allure Report for enterprise reporting.
+
+## Benefits
+
+- Historical trends
+- Categories
+- Attachments
+- Test metadata
+- CI integration
+
+Suitable for large teams and long-running projects.
+
+---
+
+# OBS-004
+
+## Rule
+
+Enable Trace Viewer on failures or retries.
+
+## Recommended
+
+```text
+trace: 'on-first-retry'
+```
+
+This balances diagnostic value with storage efficiency.
+
+---
+
+# OBS-005
+
+## Rule
+
+Capture screenshots on failure.
+
+## Recommended
+
+```text
+screenshot: 'only-on-failure'
+```
+
+Avoid capturing screenshots for every successful test unless required.
+
+---
+
+# OBS-006
+
+## Rule
+
+Record videos selectively.
+
+## Recommended
+
+```text
+video: 'retain-on-failure'
+```
+
+Continuous video recording for every passing test increases storage costs significantly.
+
+---
+
+# OBS-007
+
+## Rule
+
+Use `test.step()` to document complex workflows.
+
+## Example
+
+```text
+Login
+
+↓
+
+Create Order
+
+↓
+
+Approve Order
+
+↓
+
+Verify Status
+```
+
+Steps improve readability in reports and traces.
+
+---
+
+# OBS-008
+
+## Rule
+
+Attach business artifacts to reports.
+
+Examples
+
+- Generated PDF
+- CSV export
+- Invoice
+- Email preview
+- Downloaded files
+
+Evidence should reflect business outcomes.
+
+---
+
+# OBS-009
+
+## Rule
+
+Collect browser console logs when relevant.
+
+Useful for:
+
+- JavaScript errors
+- Deprecation warnings
+- Runtime exceptions
+
+Avoid overwhelming reports with unnecessary console output.
+
+---
+
+# OBS-010
+
+## Rule
+
+Capture network activity for debugging.
+
+Useful information:
+
+- URL
+- Method
+- Status
+- Duration
+
+Avoid logging sensitive payloads unless properly sanitized.
+
+---
+
+# OBS-011
+
+## Rule
+
+Use structured logging.
+
+## Good
+
+```text
+Timestamp
+
+Level
+
+Component
+
+Action
+
+Result
+```
+
+Structured logs are easier to search and analyze than free-form text.
+
+---
+
+# OBS-012
+
+## Rule
+
+Log business events, not every technical action.
+
+## Good
+
+```text
+Customer created
+
+Order approved
+
+Invoice generated
+```
+
+## Avoid
+
+```text
+Clicked button
+
+Typed text
+
+Moved mouse
+```
+
+Business events provide higher diagnostic value.
+
+---
+
+# OBS-013
+
+## Rule
+
+Keep logs concise.
+
+Good logs answer:
+
+- What happened?
+- When?
+- Why?
+
+Avoid excessive verbosity.
+
+---
+
+# OBS-014
+
+## Rule
+
+Categorize failures.
+
+Example categories:
+
+- Application Defect
+- Test Defect
+- Environment Issue
+- Network Issue
+- Data Issue
+- Infrastructure Issue
+
+Categorization improves trend analysis.
+
+---
+
+# OBS-015
+
+## Rule
+
+Store artifacts consistently.
+
+Recommended structure:
+
+```text
+artifacts/
+
+screenshots/
+
+videos/
+
+traces/
+
+downloads/
+
+logs/
+```
+
+---
+
+# OBS-016
+
+## Rule
+
+Retain evidence according to project policy.
+
+Example
+
+```text
+Passing Tests
+
+↓
+
+7 Days
+```
+
+```text
+Failed Tests
+
+↓
+
+30 Days
+```
+
+Retention should balance cost and traceability.
+
+---
+
+# OBS-017
+
+## Rule
+
+Annotate important tests.
+
+Useful metadata:
+
+- Feature
+- Module
+- Severity
+- Owner
+- Requirement ID
+- Sprint
+
+Annotations improve report filtering.
+
+---
+
+# OBS-018
+
+## Rule
+
+Integrate reporting with CI/CD.
+
+Reports should be available directly from:
+
+- GitHub Actions
+- GitLab CI
+- Jenkins
+- Azure DevOps
+
+Developers should not need to rerun pipelines to inspect failures.
+
+---
+
+# OBS-019
+
+## Rule
+
+Measure execution trends.
+
+Track metrics such as:
+
+- Pass rate
+- Failure rate
+- Retry rate
+- Average duration
+- Slowest tests
+
+Observability supports continuous improvement.
+
+---
+
+# OBS-020
+
+## Rule
+
+Treat reports as engineering documentation.
+
+Reports should answer:
+
+- What changed?
+- What failed?
+- What evidence exists?
+- What is the likely root cause?
+
+---
+
+# Failure Investigation Flow
+
+```text
+Test Failed
+
+↓
+
+HTML Report
+
+↓
+
+Trace Viewer
+
+↓
+
+Screenshots
+
+↓
+
+Video
+
+↓
+
+Network Logs
+
+↓
+
+Console Logs
+
+↓
+
+Root Cause Analysis
+```
+
+---
+
+# Reporting Architecture
+
+```text
+Test
+
+↓
+
+Reporter
+
+↓
+
+Artifacts
+
+↓
+
+CI/CD
+
+↓
+
+Engineering Dashboard
+```
+
+---
+
+# Artifact Strategy
+
+| Artifact | Purpose | Recommendation |
+|----------|----------|----------------|
+| HTML Report | Local debugging | Always |
+| Allure Report | Team reporting | Recommended |
+| Screenshot | Visual evidence | On failure |
+| Video | UI replay | Retain on failure |
+| Trace | Full interaction history | On first retry |
+| Logs | Root cause analysis | Structured |
+| Downloads | Business validation | Attach when relevant |
+
+---
+
+# Logging Levels
+
+| Level | Usage |
+|--------|-------|
+| DEBUG | Local troubleshooting |
+| INFO | Business events |
+| WARN | Recoverable issues |
+| ERROR | Test failures |
+| FATAL | Infrastructure failures |
+
+Use appropriate levels to avoid noisy logs.
+
+---
+
+# Common Mistakes
+
+| Mistake | Risk |
+|----------|------|
+| No trace collection | High |
+| Screenshot every step | Medium |
+| Recording all videos | Medium |
+| Logging passwords or tokens | Critical |
+| Unstructured logs | High |
+| No artifact retention policy | Medium |
+| Reports unavailable in CI | High |
+
+---
+
+# AI Coding Rules
+
+- Generate HTML reports for local execution.
+- Use Allure for enterprise reporting.
+- Enable Trace Viewer on retries or failures.
+- Capture screenshots only on failure.
+- Retain videos only for failed tests.
+- Use `test.step()` for complex workflows.
+- Log business events instead of UI actions.
+- Structure logs consistently.
+- Categorize failures.
+- Publish reports through CI/CD.
+
+---
+
+# Enterprise Checklist
+
+- [ ] HTML Report configured.
+- [ ] Allure integrated.
+- [ ] Trace Viewer enabled.
+- [ ] Screenshots on failure.
+- [ ] Videos retained on failure.
+- [ ] Structured logging.
+- [ ] Business artifacts attached.
+- [ ] Failure categories defined.
+- [ ] Reports published in CI.
+- [ ] Metrics tracked over time.
+
+---
+
+# Evidence Collection Flow
+
+```text
+Test Starts
+
+↓
+
+Structured Logs
+
+↓
+
+Business Steps
+
+↓
+
+Failure?
+
+│
+
+├── NO
+│
+└── YES
+     │
+     ├── Screenshot
+     ├── Trace
+     ├── Video
+     ├── Console Logs
+     ├── Network Logs
+     └── Attachments
+
+↓
+
+Generate Report
+```
+
+---
+
+# Enterprise Observability Architecture
+
+```text
+Playwright Tests
+
+        │
+
+        ▼
+
+ Reporter Layer
+
+        │
+
+ ┌──────┼────────┬────────┬─────────┐
+
+ ▼      ▼        ▼        ▼         ▼
+
+HTML  Allure  Trace  Screenshots  Logs
+
+        │
+
+        ▼
+
+CI/CD Artifact Storage
+
+        │
+
+        ▼
+
+Engineering Dashboard
+
+        │
+
+        ▼
+
+Root Cause Analysis
+```
+
+---
+
+# Metrics Dashboard
+
+Recommended KPIs:
+
+| Metric | Purpose |
+|---------|----------|
+| Pass Rate | Overall stability |
+| Failure Rate | Quality trend |
+| Retry Rate | Flakiness indicator |
+| Average Execution Time | Performance monitoring |
+| Slowest Test | Optimization target |
+| Top Failing Module | Prioritization |
+| Artifact Size | Storage management |
+| Mean Time to Diagnose (MTTD) | Debugging efficiency |
+
+---
+
+# Summary
+
+Reporting is not just about displaying pass or fail results.
+
+An enterprise-grade Playwright framework should provide enough context and evidence for engineers to diagnose failures quickly, accurately, and without unnecessary reruns.
+
+The combination of reports, traces, screenshots, videos, logs, and structured metadata transforms automation into an observable engineering system.
+
+**Golden Rules**
+
+1. Every failure must produce actionable evidence.
+2. Prefer HTML Report locally and Allure in CI.
+3. Capture screenshots, traces, and videos selectively.
+4. Log business events—not every UI interaction.
+5. Design reports to accelerate root cause analysis.

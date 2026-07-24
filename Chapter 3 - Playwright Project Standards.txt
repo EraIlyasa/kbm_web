@@ -1,0 +1,604 @@
+# Chapter 3
+# Playwright Project Standards
+
+---
+
+# Rule 3.1
+
+## Rule
+
+Always use TypeScript.
+
+---
+
+## Priority
+
+⭐⭐⭐⭐⭐ Mandatory
+
+---
+
+## Why
+
+TypeScript memberikan:
+
+- Static Type Checking
+- Better IntelliSense
+- Compile Time Error Detection
+- Safer Refactoring
+- Better AI Code Generation
+
+Framework enterprise tidak boleh menggunakan JavaScript biasa.
+
+---
+
+## Good
+
+```ts
+interface User {
+    username: string;
+    password: string;
+}
+
+const admin: User = {
+    username: 'admin',
+    password: 'password'
+};
+```
+
+---
+
+## Bad
+
+```js
+const admin = {
+    username: "admin",
+    password: "password"
+}
+```
+
+---
+
+## AI Rule
+
+Always generate TypeScript.
+
+Never generate JavaScript.
+
+---
+
+# Rule 3.2
+
+## Rule
+
+Enable Strict Mode.
+
+---
+
+## Priority
+
+⭐⭐⭐⭐⭐ Mandatory
+
+---
+
+## Why
+
+Strict mode mengurangi bug sejak proses compile.
+
+---
+
+## Good
+
+```json
+{
+    "compilerOptions": {
+        "strict": true
+    }
+}
+```
+
+---
+
+## Bad
+
+```json
+{
+    "strict": false
+}
+```
+
+---
+
+## AI Rule
+
+Every generated project must enable strict mode.
+
+---
+
+# Rule 3.3
+
+## Rule
+
+One Feature Per Test File.
+
+---
+
+## Why
+
+File kecil:
+
+✔ mudah dicari
+
+✔ mudah direview
+
+✔ merge conflict kecil
+
+✔ execution lebih cepat dipahami
+
+---
+
+## Good
+
+```
+tests/
+
+login.spec.ts
+
+logout.spec.ts
+
+create-user.spec.ts
+
+delete-user.spec.ts
+```
+
+---
+
+## Bad
+
+```
+tests/
+
+all-feature.spec.ts
+```
+
+isi:
+
+- login
+
+- logout
+
+- profile
+
+- dashboard
+
+- inventory
+
+- transaction
+
+- reporting
+
+- dll
+
+---
+
+## AI Rule
+
+Split test by business capability.
+
+Never create giant spec files.
+
+---
+
+# Rule 3.4
+
+## Rule
+
+One Business Scenario Per Test.
+
+---
+
+## Good
+
+```ts
+test('Admin can login', async () => {})
+```
+
+---
+
+## Good
+
+```ts
+test('Admin creates new product', async () => {})
+```
+
+---
+
+## Bad
+
+```ts
+test('Login, Create Product, Delete Product, Logout', async () => {})
+```
+
+---
+
+## Why
+
+Satu test = satu tujuan.
+
+Jika gagal, engineer langsung tahu bagian mana yang rusak.
+
+---
+
+## AI Rule
+
+Never combine multiple business scenarios.
+
+---
+
+# Rule 3.5
+
+## Rule
+
+Tests must be independent.
+
+---
+
+## Why
+
+Playwright menjalankan test secara paralel.
+
+Test tidak boleh bergantung pada test lain.
+
+---
+
+## Good
+
+```
+Test A
+
+↓
+
+Login
+
+↓
+
+Execute
+
+↓
+
+Finish
+```
+
+```
+Test B
+
+↓
+
+Login
+
+↓
+
+Execute
+
+↓
+
+Finish
+```
+
+---
+
+## Bad
+
+```
+Test A
+
+↓
+
+Create Product
+
+↓
+
+Test B
+
+↓
+
+Edit Product
+
+↓
+
+Test C
+
+↓
+
+Delete Product
+```
+
+Jika Test A gagal
+
+↓
+
+Semua gagal.
+
+---
+
+## AI Rule
+
+Every test must be executable individually.
+
+---
+
+# Rule 3.6
+
+## Rule
+
+Never depend on execution order.
+
+---
+
+## Good
+
+```
+Run:
+
+5
+
+1
+
+9
+
+2
+
+7
+
+3
+
+```
+
+Semua tetap PASS.
+
+---
+
+## Bad
+
+```
+Run:
+
+Login
+
+↓
+
+Create
+
+↓
+
+Update
+
+↓
+
+Delete
+```
+
+---
+
+## Why
+
+CI tidak menjamin urutan execution.
+
+---
+
+## AI Rule
+
+Assume tests run in random order.
+
+---
+
+# Rule 3.7
+
+## Rule
+
+Never hardcode environment.
+
+---
+
+## Good
+
+```ts
+await page.goto(process.env.BASE_URL!)
+```
+
+---
+
+## Bad
+
+```ts
+await page.goto(
+    "https://staging.company.com"
+)
+```
+
+---
+
+## Why
+
+Project biasanya memiliki:
+
+- local
+
+- dev
+
+- sit
+
+- uat
+
+- staging
+
+- production
+
+---
+
+## AI Rule
+
+Always load URL from configuration.
+
+---
+
+# Rule 3.8
+
+## Rule
+
+Never hardcode credentials.
+
+---
+
+## Good
+
+```
+.env
+```
+
+```
+USERNAME=
+
+PASSWORD=
+```
+
+---
+
+## Bad
+
+```ts
+fill("admin")
+
+fill("123456")
+```
+
+---
+
+## AI Rule
+
+Always use environment variables.
+
+---
+
+# Rule 3.9
+
+## Rule
+
+Use Playwright Config as single source of truth.
+
+---
+
+## Why
+
+Semua konfigurasi berada di satu tempat.
+
+Misalnya:
+
+- timeout
+
+- retries
+
+- browser
+
+- reporter
+
+- workers
+
+- trace
+
+---
+
+## Good
+
+```
+playwright.config.ts
+```
+
+---
+
+## Bad
+
+```
+Timeout
+
+↓
+
+config
+
+↓
+
+helper
+
+↓
+
+spec
+
+↓
+
+page
+```
+
+---
+
+## AI Rule
+
+Configuration belongs only in playwright.config.ts unless there is a clear need for environment-specific overrides.
+
+---
+
+# Rule 3.10
+
+## Rule
+
+Keep Playwright updated.
+
+---
+
+## Why
+
+Microsoft rutin memperbaiki:
+
+- locator engine
+
+- browser engine
+
+- tracing
+
+- performance
+
+- assertion
+
+---
+
+## AI Rule
+
+Prefer stable latest Playwright release.
+
+Avoid obsolete APIs.
+
+---
+
+# Enterprise Checklist
+
+Before creating a framework:
+
+☐ TypeScript
+
+☐ Strict Mode
+
+☐ Independent Tests
+
+☐ One Scenario Per Test
+
+☐ Environment Variables
+
+☐ Playwright Config
+
+☐ Parallel Ready
+
+☐ CI Ready
+
+☐ No Hardcoded Credentials
+
+☐ No Hardcoded URL
+
+☐ Production Ready

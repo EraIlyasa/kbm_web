@@ -1,0 +1,781 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2869
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # Chapter 8 \'97 Page Object Model (Enterprise Edition)\
+\
+> **Goal:** Design Page Objects that are scalable, reusable, testable, and aligned with modern Playwright best practices.\
+\
+---\
+\
+# Overview\
+\
+A Page Object represents a single page or a reusable component of the application.\
+\
+Its responsibility is to expose business actions that can be performed on that page while hiding implementation details such as locators.\
+\
+A Page Object should **never** become a place for assertions, business logic, API calls, or test data generation.\
+\
+Think of a Page Object as a driver that knows **how** to interact with a page\'97not **what** should be validated.\
+\
+---\
+\
+# POM-001\
+\
+## Rule\
+\
+One Page Object represents one page.\
+\
+## Severity\
+\
+Critical\
+\
+## Good\
+\
+```text\
+LoginPage\
+\
+DashboardPage\
+\
+ProfilePage\
+\
+CheckoutPage\
+\
+OrderPage\
+```\
+\
+## Bad\
+\
+```text\
+ApplicationPage\
+```\
+\
+Containing:\
+\
+- Login\
+- Dashboard\
+- Orders\
+- Inventory\
+- Users\
+- Reports\
+\
+## Why\
+\
+Each page should have a single responsibility.\
+\
+---\
+\
+# POM-002\
+\
+## Rule\
+\
+One Page Object should expose business actions.\
+\
+## Good\
+\
+```ts\
+await loginPage.login(email, password);\
+```\
+\
+## Avoid\
+\
+```ts\
+await loginPage.fillUsername(email);\
+\
+await loginPage.fillPassword(password);\
+\
+await loginPage.clickLogin();\
+```\
+\
+unless those actions are reused independently.\
+\
+## Why\
+\
+Tests should describe business behavior rather than UI implementation.\
+\
+---\
+\
+# POM-003\
+\
+## Rule\
+\
+Hide locators inside the Page Object.\
+\
+## Good\
+\
+```ts\
+class LoginPage \{\
+\
+    readonly emailInput;\
+\
+    readonly passwordInput;\
+\
+    readonly loginButton;\
+\
+\}\
+```\
+\
+Tests never know where locators are located.\
+\
+## Never\
+\
+```ts\
+await page.getByRole(\
+    'button',\
+    \{ name: 'Login' \}\
+).click();\
+```\
+\
+inside test files.\
+\
+---\
+\
+# POM-004\
+\
+## Rule\
+\
+Never expose Locator objects publicly.\
+\
+## Bad\
+\
+```ts\
+loginPage.loginButton.click();\
+```\
+\
+## Good\
+\
+```ts\
+await loginPage.login();\
+```\
+\
+The page controls its own implementation.\
+\
+---\
+\
+# POM-005\
+\
+## Rule\
+\
+Never place assertions inside Page Objects.\
+\
+## Bad\
+\
+```ts\
+async login() \{\
+\
+    ...\
+\
+    await expect(\
+        this.page\
+    ).toHaveURL('/dashboard');\
+\
+\}\
+```\
+\
+## Good\
+\
+```ts\
+await loginPage.login();\
+\
+await expect(page)\
+.toHaveURL('/dashboard');\
+```\
+\
+## Why\
+\
+Page Objects perform actions.\
+\
+Tests perform validations.\
+\
+---\
+\
+# POM-006\
+\
+## Rule\
+\
+Keep Page Objects stateless.\
+\
+## Good\
+\
+```ts\
+class LoginPage \{\
+\
+    constructor(\
+        private readonly page: Page\
+    ) \{\}\
+\
+\}\
+```\
+\
+## Avoid\
+\
+```ts\
+class LoginPage \{\
+\
+    currentUser\
+\
+    orderId\
+\
+    customer\
+\
+\}\
+```\
+\
+Page Objects should not store business state.\
+\
+---\
+\
+# POM-007\
+\
+## Rule\
+\
+Use readonly locators.\
+\
+## Good\
+\
+```ts\
+readonly loginButton =\
+this.page.getByRole(\
+    'button',\
+    \{\
+        name: 'Login'\
+    \}\
+);\
+```\
+\
+Locators should never be reassigned.\
+\
+---\
+\
+# POM-008\
+\
+## Rule\
+\
+Do not duplicate locators.\
+\
+## Bad\
+\
+```text\
+LoginPage\
+\
+\uc0\u8595 \
+\
+Save Button\
+\
+ProfilePage\
+\
+\uc0\u8595 \
+\
+Save Button\
+\
+SettingsPage\
+\
+\uc0\u8595 \
+\
+Save Button\
+```\
+\
+## Good\
+\
+```text\
+SaveButtonComponent\
+```\
+\
+Reuse shared UI.\
+\
+---\
+\
+# POM-009\
+\
+## Rule\
+\
+Shared UI belongs inside Component Objects.\
+\
+## Examples\
+\
+```text\
+Navbar\
+\
+Sidebar\
+\
+Modal\
+\
+Toast\
+\
+Header\
+\
+Footer\
+\
+SearchBar\
+\
+Pagination\
+\
+Table\
+\
+FilterPanel\
+```\
+\
+---\
+\
+# POM-010\
+\
+## Rule\
+\
+Prefer composition over inheritance.\
+\
+## Good\
+\
+```text\
+DashboardPage\
+\
+\uc0\u8595 \
+\
+Navbar\
+\
+\uc0\u8595 \
+\
+Sidebar\
+\
+\uc0\u8595 \
+\
+ProfileMenu\
+```\
+\
+## Avoid\
+\
+```text\
+DashboardPage\
+\
+\uc0\u8595 \
+\
+extends BasePage\
+\
+\uc0\u8595 \
+\
+extends CorePage\
+\
+\uc0\u8595 \
+\
+extends AbstractPage\
+```\
+\
+Long inheritance chains become difficult to maintain.\
+\
+---\
+\
+# POM-011\
+\
+## Rule\
+\
+Avoid God Objects.\
+\
+## Bad\
+\
+```text\
+DashboardPage\
+\
+\uc0\u8595 \
+\
+250 methods\
+\
+\uc0\u8595 \
+\
+600 locators\
+```\
+\
+## Good\
+\
+Split responsibilities.\
+\
+```text\
+DashboardPage\
+\
+\uc0\u8595 \
+\
+DashboardTable\
+\
+\uc0\u8595 \
+\
+DashboardFilter\
+\
+\uc0\u8595 \
+\
+DashboardToolbar\
+```\
+\
+---\
+\
+# POM-012\
+\
+## Rule\
+\
+One method performs one action.\
+\
+## Good\
+\
+```ts\
+search(keyword)\
+```\
+\
+```ts\
+save()\
+```\
+\
+```ts\
+delete()\
+```\
+\
+## Avoid\
+\
+```ts\
+createEditDeleteSearchExportImport()\
+```\
+\
+---\
+\
+# POM-013\
+\
+## Rule\
+\
+Methods should return meaningful objects when appropriate.\
+\
+## Example\
+\
+```ts\
+await loginPage.login();\
+\
+return new DashboardPage(page);\
+```\
+\
+Navigation methods may return the destination Page Object.\
+\
+---\
+\
+# POM-014\
+\
+## Rule\
+\
+Avoid generic helper methods.\
+\
+## Bad\
+\
+```ts\
+click(locator)\
+```\
+\
+```ts\
+fill(locator)\
+```\
+\
+inside every Page Object.\
+\
+Use Playwright directly.\
+\
+---\
+\
+# POM-015\
+\
+## Rule\
+\
+Do not place API logic inside Page Objects.\
+\
+## Bad\
+\
+```ts\
+loginPage.loginAPI();\
+```\
+\
+## Good\
+\
+```text\
+api/\
+\
+\uc0\u8595 \
+\
+AuthApi.ts\
+```\
+\
+---\
+\
+# POM-016\
+\
+## Rule\
+\
+Do not place database logic inside Page Objects.\
+\
+Database interaction belongs inside:\
+\
+- Services\
+- Repository\
+- Test Setup\
+\
+Never inside UI interaction.\
+\
+---\
+\
+# POM-017\
+\
+## Rule\
+\
+Avoid conditional business logic.\
+\
+## Bad\
+\
+```ts\
+if(admin)\{\
+\
+...\
+\
+\}else\{\
+\
+...\
+\
+\}\
+```\
+\
+inside Page Objects.\
+\
+Business decisions belong inside tests or services.\
+\
+---\
+\
+# POM-018\
+\
+## Rule\
+\
+Use descriptive method names.\
+\
+## Good\
+\
+```ts\
+approveOrder()\
+\
+rejectOrder()\
+\
+submitPayment()\
+\
+uploadInvoice()\
+```\
+\
+## Avoid\
+\
+```ts\
+clickButton()\
+\
+clickSave()\
+\
+clickBlueButton()\
+```\
+\
+Methods should describe intent.\
+\
+---\
+\
+# POM-019\
+\
+## Rule\
+\
+Do not use Page Objects as utility classes.\
+\
+Avoid\
+\
+```text\
+DateUtils\
+\
+\uc0\u8595 \
+\
+inside LoginPage\
+```\
+\
+Utilities belong inside `utils`.\
+\
+---\
+\
+# POM-020\
+\
+## Rule\
+\
+Keep constructors simple.\
+\
+## Good\
+\
+```ts\
+constructor(\
+    private readonly page: Page\
+) \{\}\
+```\
+\
+Avoid injecting multiple unrelated dependencies.\
+\
+---\
+\
+# Recommended Page Object\
+\
+```text\
+LoginPage\
+\
+\uc0\u8595 \
+\
+Locators\
+\
+\uc0\u8595 \
+\
+Business Actions\
+\
+\uc0\u8595 \
+\
+No Assertions\
+\
+\uc0\u8595 \
+\
+No API\
+\
+\uc0\u8595 \
+\
+No Database\
+\
+\uc0\u8595 \
+\
+No Business Decisions\
+```\
+\
+---\
+\
+# Component Object Example\
+\
+```text\
+DashboardPage\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  Navbar\
+\
+\uc0\u9500 \u9472 \u9472  Sidebar\
+\
+\uc0\u9500 \u9472 \u9472  FilterPanel\
+\
+\uc0\u9500 \u9472 \u9472  ProductTable\
+\
+\uc0\u9500 \u9472 \u9472  Pagination\
+\
+\uc0\u9492 \u9472 \u9472  Toast\
+```\
+\
+Each component manages its own locators.\
+\
+---\
+\
+# Dependency Flow\
+\
+```text\
+Tests\
+\
+\uc0\u8595 \
+\
+Pages\
+\
+\uc0\u8595 \
+\
+Components\
+\
+\uc0\u8595 \
+\
+Playwright\
+```\
+\
+Never reverse this dependency.\
+\
+---\
+\
+# Common Mistakes\
+\
+| Mistake | Risk |\
+|----------|------|\
+| Assertions inside Page Objects | Critical |\
+| API inside Page Objects | High |\
+| Database inside Page Objects | High |\
+| God Objects | High |\
+| Public locators | Medium |\
+| Duplicate locators | High |\
+| Stateful Page Objects | High |\
+| Large inheritance hierarchy | Medium |\
+\
+---\
+\
+# AI Coding Rules\
+\
+- One Page Object per page.\
+- One Component Object per reusable UI component.\
+- Never expose locators publicly.\
+- Never place assertions inside Page Objects.\
+- Never place API or database logic inside Page Objects.\
+- Prefer composition over inheritance.\
+- Keep Page Objects stateless.\
+- Use descriptive business-oriented method names.\
+- Split large Page Objects into smaller components.\
+- Navigation methods may return the destination Page Object.\
+\
+---\
+\
+# Enterprise Checklist\
+\
+- [ ] One page, one Page Object.\
+- [ ] No assertions.\
+- [ ] No duplicated locators.\
+- [ ] Shared UI extracted into Components.\
+- [ ] Stateless design.\
+- [ ] Readable business methods.\
+- [ ] No API calls.\
+- [ ] No database calls.\
+- [ ] No business decisions.\
+- [ ] Ready for long-term maintenance.\
+\
+---\
+\
+# Anti-Patterns\
+\
+\uc0\u10060  Assertions inside Page Objects\
+\
+\uc0\u10060  API requests inside Page Objects\
+\
+\uc0\u10060  Database queries inside Page Objects\
+\
+\uc0\u10060  `BasePage` containing hundreds of helper methods\
+\
+\uc0\u10060  `clickElement()`\
+\
+\uc0\u10060  `fillInput()`\
+\
+\uc0\u10060  `waitUntilVisible()`\
+\
+\uc0\u10060  Public Locator properties\
+\
+\uc0\u10060  One Page Object managing multiple pages\
+\
+\uc0\u10060  Stateful Page Objects\
+\
+---\
+\
+# Summary\
+\
+A Page Object should model **how users interact with a page**, not **how the application works internally**.\
+\
+Modern Playwright frameworks favor:\
+\
+- Composition over inheritance\
+- Small, focused Page Objects\
+- Reusable Component Objects\
+- Business-oriented methods\
+- Stateless architecture\
+\
+**Golden Rules**\
+\
+1. One Page Object = One Page.\
+2. Hide all locators inside the Page Object.\
+3. Never place assertions inside Page Objects.\
+4. Prefer composition over inheritance.\
+5. Extract shared UI into Component Objects.\
+6. Keep Page Objects stateless and business-focused.}

@@ -1,0 +1,810 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2869
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # Chapter 7 \'97 Project Structure & Folder Organization\
+\
+> **Goal:** Build an enterprise-grade project structure that is scalable, maintainable, and understandable by any engineer joining the project.\
+\
+---\
+\
+# Overview\
+\
+Project structure determines how easily a framework can grow.\
+\
+A poorly organized framework may work for 20 test cases but becomes nearly impossible to maintain when it reaches hundreds or thousands of tests.\
+\
+A well-designed structure allows:\
+\
+- Easy navigation\
+- Clear separation of concerns\
+- Minimal merge conflicts\
+- Reusable components\
+- Independent development\
+- Scalable architecture\
+\
+Every folder must have exactly one responsibility.\
+\
+---\
+\
+# STR-001\
+\
+## Rule\
+\
+Organize the project by responsibility, not by feature.\
+\
+## Severity\
+\
+Critical\
+\
+## Good\
+\
+```text\
+pages/\
+components/\
+fixtures/\
+helpers/\
+services/\
+api/\
+builders/\
+tests/\
+```\
+\
+## Bad\
+\
+```text\
+login/\
+dashboard/\
+transaction/\
+```\
+\
+Containing:\
+\
+```\
+login/\
+\
+LoginPage.ts\
+\
+LoginAPI.ts\
+\
+LoginHelper.ts\
+\
+LoginBuilder.ts\
+\
+LoginTest.ts\
+```\
+\
+Everything becomes tightly coupled.\
+\
+---\
+\
+# STR-002\
+\
+## Rule\
+\
+Keep test files inside the `tests` directory.\
+\
+## Good\
+\
+```text\
+tests/\
+\
+authentication/\
+\
+dashboard/\
+\
+inventory/\
+\
+transaction/\
+\
+profile/\
+```\
+\
+## Avoid\
+\
+Putting test files beside Page Objects.\
+\
+---\
+\
+# STR-003\
+\
+## Rule\
+\
+Separate UI interaction from business scenarios.\
+\
+## Good\
+\
+```text\
+tests/\
+\
+\uc0\u8595 \
+\
+pages/\
+\
+\uc0\u8595 \
+\
+components/\
+\
+\uc0\u8595 \
+\
+helpers\
+```\
+\
+## Bad\
+\
+```text\
+tests/\
+\
+\uc0\u8595 \
+\
+locator\
+\
+\uc0\u8595 \
+\
+click\
+\
+\uc0\u8595 \
+\
+assert\
+\
+\uc0\u8595 \
+\
+API\
+\
+\uc0\u8595 \
+\
+database\
+```\
+\
+Tests become difficult to read.\
+\
+---\
+\
+# STR-004\
+\
+## Rule\
+\
+Every Page Object represents one page.\
+\
+## Good\
+\
+```text\
+LoginPage\
+\
+DashboardPage\
+\
+ProfilePage\
+\
+CheckoutPage\
+```\
+\
+## Avoid\
+\
+```text\
+UserModule.ts\
+```\
+\
+Containing 30 unrelated pages.\
+\
+---\
+\
+# STR-005\
+\
+## Rule\
+\
+Shared UI belongs in Component Objects.\
+\
+## Examples\
+\
+```text\
+Navbar\
+\
+Sidebar\
+\
+Header\
+\
+Footer\
+\
+DatePicker\
+\
+Toast\
+\
+Modal\
+\
+Pagination\
+\
+Table\
+\
+SearchBar\
+\
+FilterPanel\
+```\
+\
+## Why\
+\
+Avoid duplicated locators.\
+\
+---\
+\
+# STR-006\
+\
+## Rule\
+\
+Create dedicated API clients.\
+\
+## Good\
+\
+```text\
+api/\
+\
+AuthApi.ts\
+\
+UserApi.ts\
+\
+ProductApi.ts\
+\
+OrderApi.ts\
+```\
+\
+Avoid placing API requests inside Page Objects.\
+\
+---\
+\
+# STR-007\
+\
+## Rule\
+\
+Business workflows belong inside Services.\
+\
+## Example\
+\
+```text\
+CreateCustomerService\
+\
+ApproveOrderService\
+\
+GenerateInvoiceService\
+```\
+\
+Services may combine:\
+\
+- API\
+- Database\
+- External systems\
+\
+Services should not interact with UI.\
+\
+---\
+\
+# STR-008\
+\
+## Rule\
+\
+Test data belongs inside Builders.\
+\
+## Good\
+\
+```text\
+builders/\
+\
+UserBuilder.ts\
+\
+OrderBuilder.ts\
+\
+InvoiceBuilder.ts\
+```\
+\
+## Avoid\
+\
+```ts\
+const user = \{\
+    name: "John",\
+    email: "john@test.com"\
+\};\
+```\
+\
+Repeated across multiple tests.\
+\
+---\
+\
+# STR-009\
+\
+## Rule\
+\
+Store reusable utilities inside `utils`.\
+\
+## Examples\
+\
+```text\
+DateUtils\
+\
+StringUtils\
+\
+NumberUtils\
+\
+CurrencyUtils\
+\
+RandomUtils\
+```\
+\
+Utilities must be pure functions.\
+\
+---\
+\
+# STR-010\
+\
+## Rule\
+\
+Framework helpers belong in `helpers`.\
+\
+Examples:\
+\
+```text\
+ScreenshotHelper\
+\
+FileHelper\
+\
+ExcelHelper\
+\
+PdfHelper\
+\
+DownloadHelper\
+```\
+\
+Helpers may depend on Playwright.\
+\
+Utilities should not.\
+\
+---\
+\
+# STR-011\
+\
+## Rule\
+\
+Configuration belongs inside `config`.\
+\
+## Example\
+\
+```text\
+config/\
+\
+environment.ts\
+\
+playwright.config.ts\
+\
+constants.ts\
+```\
+\
+Never spread configuration throughout the framework.\
+\
+---\
+\
+# STR-012\
+\
+## Rule\
+\
+Models belong inside `models`.\
+\
+Examples\
+\
+```text\
+User.ts\
+\
+Product.ts\
+\
+Order.ts\
+\
+Invoice.ts\
+```\
+\
+Models describe business entities.\
+\
+---\
+\
+# STR-013\
+\
+## Rule\
+\
+Interfaces belong inside `interfaces`.\
+\
+Example\
+\
+```text\
+LoginResponse\
+\
+Customer\
+\
+PaymentMethod\
+```\
+\
+Avoid mixing interfaces with implementation.\
+\
+---\
+\
+# STR-014\
+\
+## Rule\
+\
+Custom Playwright fixtures belong inside `fixtures`.\
+\
+Example\
+\
+```text\
+fixtures/\
+\
+auth.fixture.ts\
+\
+admin.fixture.ts\
+\
+mobile.fixture.ts\
+```\
+\
+Never define fixtures inside test files.\
+\
+---\
+\
+# STR-015\
+\
+## Rule\
+\
+Keep reusable constants inside `constants`.\
+\
+Examples\
+\
+```text\
+Roles\
+\
+Permissions\
+\
+URLs\
+\
+Endpoints\
+\
+Messages\
+\
+Timeouts\
+```\
+\
+Avoid duplicated string literals.\
+\
+---\
+\
+# STR-016\
+\
+## Rule\
+\
+Keep reports outside source code.\
+\
+Example\
+\
+```text\
+reports/\
+\
+html/\
+\
+allure/\
+\
+junit/\
+```\
+\
+Generated artifacts should never mix with source files.\
+\
+---\
+\
+# STR-017\
+\
+## Rule\
+\
+Use a dedicated directory for authentication state.\
+\
+Example\
+\
+```text\
+playwright/\
+\
+.auth/\
+\
+admin.json\
+\
+manager.json\
+\
+customer.json\
+```\
+\
+Authentication state is not source code.\
+\
+---\
+\
+# STR-018\
+\
+## Rule\
+\
+Separate test data from test logic.\
+\
+Good\
+\
+```text\
+data/\
+\
+users/\
+\
+products/\
+\
+orders/\
+```\
+\
+Avoid embedding large JSON objects inside test files.\
+\
+---\
+\
+# STR-019\
+\
+## Rule\
+\
+Keep scripts inside the `scripts` directory.\
+\
+Examples\
+\
+```text\
+scripts/\
+\
+generate-report.ts\
+\
+cleanup.ts\
+\
+seed.ts\
+\
+create-user.ts\
+```\
+\
+Avoid placing executable scripts beside tests.\
+\
+---\
+\
+# STR-020\
+\
+## Rule\
+\
+The project root should remain clean.\
+\
+Recommended root structure\
+\
+```text\
+.\
+\
+\uc0\u9500 \u9472 \u9472  package.json\
+\uc0\u9500 \u9472 \u9472  playwright.config.ts\
+\uc0\u9500 \u9472 \u9472  tsconfig.json\
+\uc0\u9500 \u9472 \u9472  README.md\
+\uc0\u9500 \u9472 \u9472  .env\
+\uc0\u9500 \u9472 \u9472  .gitignore\
+\uc0\u9500 \u9472 \u9472  src/\
+\uc0\u9500 \u9472 \u9472  tests/\
+\uc0\u9500 \u9472 \u9472  pages/\
+\uc0\u9500 \u9472 \u9472  components/\
+\uc0\u9500 \u9472 \u9472  fixtures/\
+\uc0\u9500 \u9472 \u9472  api/\
+\uc0\u9500 \u9472 \u9472  builders/\
+\uc0\u9500 \u9472 \u9472  services/\
+\uc0\u9500 \u9472 \u9472  helpers/\
+\uc0\u9500 \u9472 \u9472  utils/\
+\uc0\u9500 \u9472 \u9472  config/\
+\uc0\u9500 \u9472 \u9472  data/\
+\uc0\u9500 \u9472 \u9472  models/\
+\uc0\u9500 \u9472 \u9472  interfaces/\
+\uc0\u9500 \u9472 \u9472  constants/\
+\uc0\u9500 \u9472 \u9472  reports/\
+\uc0\u9500 \u9472 \u9472  scripts/\
+\uc0\u9492 \u9472 \u9472  playwright/\
+```\
+\
+Avoid placing random files at the project root.\
+\
+---\
+\
+# Recommended Enterprise Structure\
+\
+```text\
+playwright-framework/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  playwright.config.ts\
+\
+\uc0\u9500 \u9472 \u9472  package.json\
+\
+\uc0\u9500 \u9472 \u9472  tsconfig.json\
+\
+\uc0\u9500 \u9472 \u9472  README.md\
+\
+\uc0\u9500 \u9472 \u9472  .env\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  tests/\
+\
+\uc0\u9474    \u9500 \u9472 \u9472  auth/\
+\
+\uc0\u9474    \u9500 \u9472 \u9472  dashboard/\
+\
+\uc0\u9474    \u9500 \u9472 \u9472  inventory/\
+\
+\uc0\u9474    \u9500 \u9472 \u9472  order/\
+\
+\uc0\u9474    \u9492 \u9472 \u9472  checkout/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  pages/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  components/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  fixtures/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  api/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  services/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  builders/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  helpers/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  utils/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  constants/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  models/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  interfaces/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  config/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  data/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  playwright/\
+\
+\uc0\u9474    \u9492 \u9472 \u9472  .auth/\
+\
+\uc0\u9474 \
+\
+\uc0\u9500 \u9472 \u9472  reports/\
+\
+\uc0\u9474 \
+\
+\uc0\u9492 \u9472 \u9472  scripts/\
+```\
+\
+---\
+\
+# Dependency Flow\
+\
+Dependencies should always flow downward.\
+\
+```text\
+Tests\
+\
+\uc0\u8595 \
+\
+Pages\
+\
+\uc0\u8595 \
+\
+Components\
+\
+\uc0\u8595 \
+\
+Helpers\
+\
+\uc0\u8595 \
+\
+Utilities\
+```\
+\
+Never reverse this direction.\
+\
+---\
+\
+# Allowed Dependencies\
+\
+| Layer | Can Depend On |\
+|----------|-----------------------------|\
+| Tests | Pages, Services, Fixtures |\
+| Pages | Components |\
+| Components | Helpers |\
+| Services | API, Builders |\
+| API | Helpers |\
+| Helpers | Utilities |\
+| Utilities | Nothing |\
+\
+Utilities should be independent.\
+\
+---\
+\
+# Common Mistakes\
+\
+| Mistake | Risk |\
+|----------|------|\
+| API inside Page Object | High |\
+| Assertions inside Page Object | High |\
+| Test data inside tests | Medium |\
+| Helpers calling Pages | High |\
+| Components duplicated across Pages | High |\
+| Large root directory | Medium |\
+| Mixed responsibilities | High |\
+\
+---\
+\
+# AI Coding Rules\
+\
+- Every folder has one responsibility.\
+- Every Page Object represents one page.\
+- Shared UI belongs in Component Objects.\
+- API clients belong inside the `api` directory.\
+- Business workflows belong inside Services.\
+- Test data belongs inside Builders.\
+- Utilities must remain framework-independent.\
+- Fixtures belong inside the `fixtures` directory.\
+- Never place locators inside tests.\
+- Never place assertions inside Pages.\
+- Keep generated reports outside source code.\
+- Authentication state belongs inside `playwright/.auth`.\
+\
+---\
+\
+# Enterprise Checklist\
+\
+- [ ] Folder responsibilities are clear.\
+- [ ] No mixed responsibilities.\
+- [ ] API separated from UI.\
+- [ ] Components reused.\
+- [ ] Test data isolated.\
+- [ ] Fixtures centralized.\
+- [ ] Reports isolated.\
+- [ ] Authentication state separated.\
+- [ ] Dependency direction maintained.\
+- [ ] Ready to scale beyond 5,000 tests.\
+\
+---\
+\
+# Summary\
+\
+A clean project structure is the foundation of an enterprise automation framework.\
+\
+As the number of tests grows, architecture becomes more important than Playwright syntax.\
+\
+**Golden Rules**\
+\
+1. Organize by responsibility.\
+2. One folder, one purpose.\
+3. Keep dependencies flowing in one direction.\
+4. Separate UI, business logic, API, and data.\
+5. Design for 5,000+ test cases from day one.}

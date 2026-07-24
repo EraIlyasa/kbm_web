@@ -1,0 +1,14 @@
+# Dependency directories
+node_modules/
+
+# Environment files
+.env
+
+# Playwright execution output
+test-results/
+playwright-report/
+playwright/.auth/
+reports/
+
+# OS metadata
+.DS_Store

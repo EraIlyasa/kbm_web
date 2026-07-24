@@ -1,0 +1,712 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2869
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # Chapter 10 \'97 Fixtures & Dependency Injection\
+\
+> **Goal:** Build reusable, scalable, and maintainable test setups using Playwright Fixtures instead of repetitive setup logic.\
+\
+---\
+\
+# Overview\
+\
+Playwright Fixtures are one of the framework's most powerful features.\
+\
+Unlike Selenium or WebdriverIO, Playwright is built around Dependency Injection (DI).\
+\
+Instead of manually creating objects in every test, Playwright injects dependencies automatically.\
+\
+Well-designed fixtures eliminate duplicated setup, simplify tests, and improve maintainability.\
+\
+---\
+\
+# What is a Fixture?\
+\
+A fixture is an object that Playwright automatically creates, manages, and disposes.\
+\
+Example:\
+\
+```ts\
+test('Admin can login', async (\{\
+    page,\
+    loginPage,\
+    dashboardPage\
+\}) => \{\
+\
+\});\
+```\
+\
+Playwright automatically provides:\
+\
+- page\
+- context\
+- browser\
+- custom fixtures\
+\
+No manual initialization is required.\
+\
+---\
+\
+# Fixture Lifecycle\
+\
+```text\
+Worker Starts\
+\
+\uc0\u8595 \
+\
+Worker Fixture\
+\
+\uc0\u8595 \
+\
+Test Starts\
+\
+\uc0\u8595 \
+\
+Test Fixture\
+\
+\uc0\u8595 \
+\
+Run Test\
+\
+\uc0\u8595 \
+\
+Dispose Test Fixture\
+\
+\uc0\u8595 \
+\
+Next Test\
+\
+\uc0\u8595 \
+\
+Dispose Worker Fixture\
+```\
+\
+---\
+\
+# FIX-001\
+\
+## Rule\
+\
+Prefer Fixtures over beforeEach() whenever possible.\
+\
+## Severity\
+\
+Critical\
+\
+## Why\
+\
+Fixtures are:\
+\
+- Reusable\
+- Type-safe\
+- Composable\
+- Lazy-loaded\
+- Independent\
+\
+---\
+\
+## Good\
+\
+```ts\
+test('Admin Login', async (\{\
+    loginPage\
+\}) => \{\
+\
+\});\
+```\
+\
+---\
+\
+## Avoid\
+\
+```ts\
+test.beforeEach(async () => \{\
+\
+    loginPage = new LoginPage(page);\
+\
+\});\
+```\
+\
+---\
+\
+# FIX-002\
+\
+## Rule\
+\
+Keep Fixtures focused.\
+\
+## Good\
+\
+```text\
+auth.fixture.ts\
+\
+admin.fixture.ts\
+\
+api.fixture.ts\
+```\
+\
+---\
+\
+## Avoid\
+\
+```text\
+everything.fixture.ts\
+```\
+\
+Containing:\
+\
+- Login\
+- API\
+- Database\
+- PDF\
+- Email\
+- Report\
+\
+---\
+\
+# FIX-003\
+\
+## Rule\
+\
+One Fixture = One Responsibility.\
+\
+## Good\
+\
+```text\
+Auth Fixture\
+\
+\uc0\u8595 \
+\
+Authentication\
+```\
+\
+```text\
+Api Fixture\
+\
+\uc0\u8595 \
+\
+API Client\
+```\
+\
+```text\
+Admin Fixture\
+\
+\uc0\u8595 \
+\
+Admin User\
+```\
+\
+---\
+\
+# FIX-004\
+\
+## Rule\
+\
+Prefer Dependency Injection.\
+\
+## Good\
+\
+```ts\
+test(\
+'Create Order',\
+async (\{\
+    orderPage,\
+    adminUser\
+\}) => \{\
+\
+\});\
+```\
+\
+---\
+\
+## Avoid\
+\
+```ts\
+const page = new Page(...);\
+\
+const order = new OrderPage(...);\
+```\
+\
+inside every test.\
+\
+---\
+\
+# FIX-005\
+\
+## Rule\
+\
+Keep Fixtures stateless.\
+\
+## Good\
+\
+Each test receives a fresh fixture.\
+\
+---\
+\
+## Avoid\
+\
+```ts\
+fixture.currentOrder\
+```\
+\
+Mutable shared state creates flaky tests.\
+\
+---\
+\
+# FIX-006\
+\
+## Rule\
+\
+Use Test Fixtures for test-scoped objects.\
+\
+## Examples\
+\
+- LoginPage\
+- DashboardPage\
+- OrderPage\
+- ProductPage\
+\
+Each test receives a fresh instance.\
+\
+---\
+\
+# FIX-007\
+\
+## Rule\
+\
+Use Worker Fixtures for expensive resources.\
+\
+## Examples\
+\
+- Database connection\
+- API client\
+- Authentication token\
+- Docker container\
+- Mock server\
+\
+These resources are shared by tests running in the same worker.\
+\
+---\
+\
+# FIX-008\
+\
+## Rule\
+\
+Use Storage State Fixtures for authenticated users.\
+\
+## Good\
+\
+```text\
+Admin\
+\
+\uc0\u8595 \
+\
+admin.json\
+```\
+\
+```text\
+Customer\
+\
+\uc0\u8595 \
+\
+customer.json\
+```\
+\
+```text\
+Manager\
+\
+\uc0\u8595 \
+\
+manager.json\
+```\
+\
+Avoid logging in through the UI before every test.\
+\
+---\
+\
+# FIX-009\
+\
+## Rule\
+\
+Prefer API login over UI login for setup.\
+\
+## Good\
+\
+```text\
+API Login\
+\
+\uc0\u8595 \
+\
+Save Storage State\
+\
+\uc0\u8595 \
+\
+Run Tests\
+```\
+\
+---\
+\
+## Avoid\
+\
+```text\
+UI Login\
+\
+\uc0\u8595 \
+\
+Every Test\
+```\
+\
+unless login itself is under test.\
+\
+---\
+\
+# FIX-010\
+\
+## Rule\
+\
+Fixtures should hide setup complexity.\
+\
+## Good\
+\
+```ts\
+test(\
+'Checkout',\
+async (\{\
+    authenticatedCustomer\
+\}) => \{\
+\
+\});\
+```\
+\
+The test should not care how authentication is implemented.\
+\
+---\
+\
+# FIX-011\
+\
+## Rule\
+\
+Compose Fixtures.\
+\
+## Example\
+\
+```text\
+Browser\
+\
+\uc0\u8595 \
+\
+Page\
+\
+\uc0\u8595 \
+\
+LoginPage\
+\
+\uc0\u8595 \
+\
+AuthenticatedUser\
+\
+\uc0\u8595 \
+\
+AdminFixture\
+```\
+\
+Small fixtures combine into larger ones.\
+\
+---\
+\
+# FIX-012\
+\
+## Rule\
+\
+Do not perform assertions inside Fixtures.\
+\
+Fixtures prepare the environment.\
+\
+Tests verify outcomes.\
+\
+---\
+\
+# FIX-013\
+\
+## Rule\
+\
+Avoid business logic inside Fixtures.\
+\
+## Good\
+\
+```text\
+Authentication\
+```\
+\
+---\
+\
+## Bad\
+\
+```text\
+Approve Invoice\
+\
+\uc0\u8595 \
+\
+Create Customer\
+\
+\uc0\u8595 \
+\
+Generate Payment\
+```\
+\
+Those belong inside Services.\
+\
+---\
+\
+# FIX-014\
+\
+## Rule\
+\
+Dispose resources correctly.\
+\
+Examples\
+\
+- Close database\
+- Stop mock server\
+- Delete temporary files\
+\
+Playwright automatically disposes many built-in fixtures.\
+\
+Custom resources should also be cleaned up.\
+\
+---\
+\
+# FIX-015\
+\
+## Rule\
+\
+Use Auto Fixtures carefully.\
+\
+Auto Fixtures execute for every test.\
+\
+Only use them for:\
+\
+- Logging\
+- Reporting\
+- Global Monitoring\
+\
+Avoid unnecessary execution.\
+\
+---\
+\
+# FIX-016\
+\
+## Rule\
+\
+Keep Fixture names descriptive.\
+\
+## Good\
+\
+```text\
+authenticatedAdmin\
+\
+authenticatedCustomer\
+\
+productApi\
+\
+invoiceBuilder\
+```\
+\
+---\
+\
+## Avoid\
+\
+```text\
+fixture1\
+\
+fixture2\
+\
+helper\
+```\
+\
+---\
+\
+# FIX-017\
+\
+## Rule\
+\
+Prefer composition over giant Fixtures.\
+\
+## Good\
+\
+```text\
+Database Fixture\
+\
++\
+\
+API Fixture\
+\
++\
+\
+Authentication Fixture\
+```\
+\
+---\
+\
+## Avoid\
+\
+```text\
+EnterpriseFixture\
+```\
+\
+Containing everything.\
+\
+---\
+\
+# FIX-018\
+\
+## Rule\
+\
+Separate Fixtures by responsibility.\
+\
+Recommended structure\
+\
+```text\
+fixtures/\
+\
+auth.fixture.ts\
+\
+page.fixture.ts\
+\
+api.fixture.ts\
+\
+database.fixture.ts\
+\
+admin.fixture.ts\
+\
+customer.fixture.ts\
+```\
+\
+---\
+\
+# FIX-019\
+\
+## Rule\
+\
+Keep Fixtures reusable.\
+\
+Avoid creating fixtures that are useful for only one test.\
+\
+---\
+\
+# FIX-020\
+\
+## Rule\
+\
+Document every custom Fixture.\
+\
+Every engineer should know:\
+\
+- What it provides\
+- Scope\
+- Dependencies\
+- Cleanup behavior\
+\
+---\
+\
+# Worker Fixture vs Test Fixture\
+\
+| Worker Fixture | Test Fixture |\
+|----------------|--------------|\
+| Created once per worker | Created for every test |\
+| Shared by tests in the worker | Isolated |\
+| Good for expensive setup | Good for Page Objects |\
+| Faster | More isolated |\
+\
+---\
+\
+# Dependency Flow\
+\
+```text\
+Browser\
+\
+\uc0\u8595 \
+\
+Context\
+\
+\uc0\u8595 \
+\
+Page\
+\
+\uc0\u8595 \
+\
+Page Object\
+\
+\uc0\u8595 \
+\
+Authenticated User\
+\
+\uc0\u8595 \
+\
+Business Test\
+```\
+\
+---\
+\
+# Common Mistakes\
+\
+| Mistake | Risk |\
+|----------|------|\
+| Everything inside beforeEach() | High |\
+| UI Login before every test | High |\
+| Business logic inside Fixture | Medium |\
+| Assertions inside Fixture | High |\
+| Giant Fixture | High |\
+| Shared mutable state | Critical |\
+| Worker Fixture used incorrectly | Medium |\
+\
+---\
+\
+# AI Coding Rules\
+\
+- Prefer Fixtures over beforeEach().\
+- One Fixture = One Responsibility.\
+- Prefer Dependency Injection.\
+- Keep Fixtures stateless.\
+- Use Test Fixtures for Page Objects.\
+- Use Worker Fixtures for expensive resources.\
+- Prefer Storage State for authentication.\
+- Prefer API Login for setup.\
+- Never place assertions inside Fixtures.\
+- Keep Fixtures reusable and composable.\
+\
+---\
+\
+# Enterprise Checklist\
+\
+- [ ] Uses Dependency Injection.\
+- [ ] Minimal beforeEach().\
+- [ ] Stateless Fixtures.\
+- [ ] Authentication via Storage State.\
+- [ ] API Login preferred.\
+- [ ] Correct Fixture scope.\
+- [ ] Reusable Fixtures.\
+- [ ] No assertions inside Fixtures.\
+- [ ] Proper cleanup.\
+- [ ] Well documented.\
+\
+---\
+\
+# Summary\
+\
+Fixtures are the preferred mechanism for preparing test environments in Playwright.\
+\
+They improve readability, reduce duplication, and enable scalable automation by leveraging Dependency Injection.\
+\
+A well-designed fixture system is one of the defining characteristics of an enterprise-grade Playwright framework.\
+\
+**Golden Rules**\
+\
+1. Prefer Fixtures over beforeEach().\
+2. One Fixture = One Responsibility.\
+3. Use Dependency Injection.\
+4. Keep Fixtures stateless.\
+5. Prefer Storage State and API Login for authentication.}
