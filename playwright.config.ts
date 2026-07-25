@@ -43,8 +43,8 @@ export default defineConfig({
     /* Capture screenshots on failure only */
     screenshot: 'only-on-failure',
 
-    /* Retain video only on failure */
-    video: 'retain-on-failure',
+    /* Always record video */
+    video: 'on',
 
     /* Custom attribute to use for getByTestId */
     testIdAttribute: 'data-testid',
@@ -54,7 +54,12 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          args: ['--disable-blink-features=AutomationControlled']
+        }
+      },
     },
     {
       name: 'firefox',
