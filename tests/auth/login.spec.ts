@@ -2,7 +2,11 @@ import { test, expect } from '../../fixtures/page.fixture.js';
 import { UserBuilder } from '../../builders/UserBuilder.js';
 
 test.describe('Authentication Specifications', () => {
-  
+  test.beforeEach(({}, testInfo) => {
+    if (process.env.MOCK_NETWORK === 'false') {
+      testInfo.skip(true, 'Mock network is disabled');
+    }
+  });
   test('User with valid credentials should login successfully and see the dashboard', async ({
     loginPage,
     dashboardPage,

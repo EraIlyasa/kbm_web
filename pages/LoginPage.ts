@@ -8,9 +8,9 @@ export class LoginPage {
   public readonly errorMessage: Locator;
 
   constructor(private readonly page: Page) {
-    this.emailInput = this.page.getByLabel('Email');
-    this.passwordInput = this.page.getByLabel('Password');
-    this.loginButton = this.page.getByRole('button', { name: 'Login' });
+    this.emailInput = this.page.getByLabel('Nama Pengguna/Email');
+    this.passwordInput = this.page.getByLabel('Kata Sandi');
+    this.loginButton = this.page.getByRole('button', { name: 'Masuk', exact: true });
     this.errorMessage = this.page.getByRole('alert');
   }
 
