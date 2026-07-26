@@ -56,18 +56,28 @@ export default defineConfig({
       name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
+        viewport: { width: 2560, height: 1600 },
         launchOptions: {
-          args: ['--disable-blink-features=AutomationControlled']
+          args: ['--disable-blink-features=AutomationControlled', '--start-fullscreen']
         }
       },
     },
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: { 
+        ...devices['Desktop Firefox'],
+        viewport: { width: 2560, height: 1600 },
+        launchOptions: {
+          args: ['--start-fullscreen']
+        }
+      },
     },
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: { 
+        ...devices['Desktop Safari'],
+        viewport: { width: 2560, height: 1600 }
+      },
     },
   ],
 });
