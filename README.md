@@ -47,9 +47,44 @@ This is a TypeScript-based, enterprise-grade Playwright automation framework des
      ```bash
      npm run test
      ```
-   * **Headed Mode (Browser Terbuka)**:
+   * **Running Specific Spec Files**:
+     Untuk menjalankan file tes tertentu secara spesifik:
      ```bash
+     # Menjalankan test authentication & profile saja
+     npx playwright test tests/auth/login-real.spec.ts
+
+     # Menjalankan test pembuatan cerita & 11 bab saja
+     npx playwright test tests/story/create-story.spec.ts
+     ```
+   * **Running in a Specific Environment (dev / beta)**:
+     Gunakan variable `ENV` sebelum command running test:
+     ```bash
+     # Jalankan di environment DEV (Default, memuat .env)
+     npx playwright test tests/auth/login-real.spec.ts
+
+     # Jalankan di environment BETA (Memuat .env.beta)
+     ENV=beta npx playwright test tests/auth/login-real.spec.ts
+     ```
+   * **Running on a Specific Browser/Project**:
+     Gunakan parameter `--project`:
+     ```bash
+     # Hanya jalankan di browser Firefox
+     npx playwright test tests/auth/login-real.spec.ts --project=firefox
+
+     # Contoh lengkap: Jalankan spec login di BETA menggunakan Firefox
+     ENV=beta npx playwright test tests/auth/login-real.spec.ts --project=firefox
+     ```
+   * **Headed Mode (Browser Terbuka)**:
+     Untuk melihat jalannya pengujian di browser secara visual:
+     ```bash
+     # Menjalankan seluruh test suite dengan visual browser terbukan
      npx playwright test --headed
+
+     # Menjalankan spec tertentu secara spesifik dengan visual browser terbuka
+     npx playwright test tests/auth/login-real.spec.ts --headed
+
+     # Contoh lengkap: Jalankan spec login di BETA menggunakan Firefox dengan visual browser terbuka
+     ENV=beta npx playwright test tests/auth/login-real.spec.ts --project=firefox --headed
      ```
    * **UI Mode (Interactive Dashboard)**:
      ```bash
@@ -76,3 +111,4 @@ This is a TypeScript-based, enterprise-grade Playwright automation framework des
    ```bash
    npm run show-report
    ```
+

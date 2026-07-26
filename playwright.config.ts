@@ -2,8 +2,12 @@ import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-// Load environment variables from .env file
-dotenv.config({ path: path.resolve(__dirname, '.env') });
+// Load environment variables from .env file based on ENV variable
+// Usage: ENV=beta npx playwright test  → loads .env.beta
+//        npx playwright test           → loads .env (default dev)
+const envFile = process.env.ENV ? `.env.${process.env.ENV}` : '.env';
+dotenv.config({ path: path.resolve(__dirname, envFile) });
+
 
 /**
  * See https://playwright.dev/docs/test-configuration.
