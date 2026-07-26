@@ -16,8 +16,11 @@ test.describe('Real Authentication and Landing Menu Specifications', () => {
     // Allow up to 60 seconds for real website logins and settings updates
     test.setTimeout(60000);
 
-    // Skip Chromium on real login because headless Chrome is blocked by reCAPTCHA v2 on the live site
-    test.skip(testInfo.project.name === 'chromium', 'Headless Chromium is blocked by reCAPTCHA v2');
+    // Skip Chromium and WebKit on real login because headless browsers are blocked by reCAPTCHA v2
+    test.skip(
+      testInfo.project.name === 'chromium' || testInfo.project.name === 'webkit',
+      'Headless Chromium/WebKit is blocked by reCAPTCHA v2'
+    );
 
     // Get current account dynamically based on workerIndex
     const account = Credentials.TEST_ACCOUNTS[testInfo.workerIndex % Credentials.TEST_ACCOUNTS.length];
@@ -38,7 +41,7 @@ test.describe('Real Authentication and Landing Menu Specifications', () => {
       await loginPage.login(account.email, account.password);
       
       // Wait for redirect to home page (gives time for authentication & reCAPTCHA score verification)
-      await page.waitForURL('https://dev-web.ccmhoster.com/', { timeout: 30000 });
+      await page.waitForURL(`${process.env.BASE_URL}/`, { timeout: 30000 });
       
       // Wait until the page has loaded
       await page.waitForLoadState('load');
@@ -221,7 +224,7 @@ test.describe('Real Authentication and Landing Menu Specifications', () => {
         
         // Wait for redirect back to timeline or load timeline page on newPage
         await newPage.waitForURL('**/timeline', { timeout: 15000 }).catch(async () => {
-          await newPage.goto('https://dev-web.ccmhoster.com/timeline');
+          await newPage.goto(`${process.env.BASE_URL}/timeline`);
         });
         await newPage.waitForLoadState('load');
         
@@ -229,6 +232,32 @@ test.describe('Real Authentication and Landing Menu Specifications', () => {
         const newPostCard = newPage.locator('.card-feed-timeline', { hasText: caption }).first();
         await newPostCard.scrollIntoViewIfNeeded();
         await expect(newPostCard).toBeVisible({ timeout: 15000 });
+        
+        // 1. Give Like to the post
+        console.log('Liking the newly created post...');
+        await newPostCard.locator('.like-post').first().click({ force: true });
+        await newPage.waitForTimeout(1000);
+        
+        // 2. Open comment textarea
+        console.log('Opening comment input box...');
+        await newPostCard.locator('.comment-post').first().click({ force: true });
+        await newPage.waitForTimeout(1000);
+        
+        // 3. Fill and post the comment
+        const commentText = `Comment Testing - ${dateStr} - ${timeStr}`;
+        console.log(`Writing comment: "${commentText}"...`);
+        
+        const commentTextarea = newPostCard.locator('textarea[placeholder*="Tuliskan komentar"]').first();
+        await commentTextarea.waitFor({ state: 'visible', timeout: 5000 });
+        await commentTextarea.fill(commentText);
+        
+        // 4. Click Posting Komentar
+        await newPostCard.locator('button:has-text("Posting Komentar")').first().click({ force: true });
+        await newPage.waitForTimeout(3000);
+        
+        // 5. Verify the comment text exists under the card
+        await expect(newPostCard.locator('.card-feed-timeline', { hasText: commentText }).or(newPostCard).filter({ hasText: commentText }).first()).toBeVisible({ timeout: 15000 });
+        console.log('Like and Comment steps completed successfully!');
       }
     });
   });
