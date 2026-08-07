@@ -1,6 +1,6 @@
 import { User } from '../models/User.js';
 import { Roles } from '../constants/Roles.js';
-import { RandomUtils } from '../utils/RandomUtils.js';
+import { requireEnv } from '../utils/EnvUtils.js';
 
 export class UserBuilder {
   private user: User;
@@ -14,8 +14,8 @@ export class UserBuilder {
    */
   public static admin(): UserBuilder {
     return new UserBuilder({
-      email: process.env.ADMIN_EMAIL || 'admin@company.com',
-      password: process.env.ADMIN_PASSWORD || 'adminPassword123',
+      email: requireEnv('ADMIN_EMAIL'),
+      password: requireEnv('ADMIN_PASSWORD'),
       role: Roles.ADMIN,
       firstName: 'Admin',
       lastName: 'User',
@@ -27,8 +27,8 @@ export class UserBuilder {
    */
   public static customer(): UserBuilder {
     return new UserBuilder({
-      email: process.env.CUSTOMER_EMAIL || 'customer@company.com',
-      password: process.env.CUSTOMER_PASSWORD || 'customerPassword123',
+      email: requireEnv('CUSTOMER_EMAIL'),
+      password: requireEnv('CUSTOMER_PASSWORD'),
       role: Roles.CUSTOMER,
       firstName: 'Customer',
       lastName: 'User',

@@ -1,5 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 
+export type Occupation = 'Buruh Pabrik' | 'Masinis';
+
 export class SettingsPage {
   public readonly professionSelect: Locator;
   public readonly saveButton: Locator;
@@ -31,7 +33,7 @@ export class SettingsPage {
   /**
    * Updates the user's occupation (profession) and saves the change.
    */
-  public async updateOccupation(occupation: 'Buruh Pabrik' | 'Masinis'): Promise<void> {
+  public async updateOccupation(occupation: Occupation): Promise<void> {
     await this.professionSelect.selectOption({ label: occupation });
     await this.saveButton.scrollIntoViewIfNeeded();
     await this.saveButton.click();

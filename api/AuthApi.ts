@@ -7,7 +7,7 @@ export class AuthApi {
   /**
    * Performs an authentication login request via API.
    */
-  public async login(email: string, password?: string): Promise<APIResponse> {
+  public async login(email: string, password: string): Promise<APIResponse> {
     return await this.request.post(URLs.API.AUTH_LOGIN, {
       data: {
         email,

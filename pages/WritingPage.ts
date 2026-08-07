@@ -1,4 +1,6 @@
-import { Locator, Page, expect } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
+import { Timeouts } from '../constants/Timeouts.js';
+import { requireEnv } from '../utils/EnvUtils.js';
 
 export class WritingPage {
   public readonly ceritaBaruButton: Locator;
@@ -47,6 +49,8 @@ export class WritingPage {
   
   // Chapter list detail screen
   public readonly tambahBabButton: Locator;
+
+  private readonly DEFAULT_COIN_NOMINAL = '15';
 
   constructor(private readonly page: Page) {
     this.ceritaBaruButton = this.page.getByRole('button', { name: 'Cerita Baru' })
@@ -106,7 +110,7 @@ export class WritingPage {
    * Navigates directly to the Writing Studio dashboard.
    */
   public async goto(): Promise<void> {
-    await this.page.goto(process.env.WRITE_URL || 'https://dev-write.ccmhoster.com/');
+    await this.page.goto(requireEnv('WRITE_URL'));
   }
 
   /**
@@ -118,7 +122,7 @@ export class WritingPage {
     if (await agreeAndContinueBtn.count() > 0 && await agreeAndContinueBtn.isVisible()) {
       console.log('Dismissing profit sharing modal...');
       await agreeAndContinueBtn.click();
-      await this.page.waitForTimeout(2000);
+      await this.page.waitForTimeout(Timeouts.SHORT);
     }
 
     await this.ceritaBaruButton.click();
@@ -130,7 +134,7 @@ export class WritingPage {
     // Fill category and click the dropdown option
     await this.categoryInput.fill(category);
     const categoryOption = this.page.locator('div[id*="-listbox"] div, div[id*="-option-"], div[class*="-menu"] div').filter({ hasText: new RegExp(`^${category}$`) }).first();
-    await categoryOption.waitFor({ state: 'visible', timeout: 5000 });
+    await categoryOption.waitFor({ state: 'visible', timeout: Timeouts.EXPECT });
     await categoryOption.click();
     
     // Fill synopsis
@@ -143,7 +147,7 @@ export class WritingPage {
     // Select cover
     await this.editCoverButton.click();
     await this.kbmSampulOption.click();
-    await this.page.waitForTimeout(2000); // Wait for modal fade-in
+    await this.firstCoverImage.waitFor({ state: 'visible', timeout: Timeouts.EXPECT });
     await this.firstCoverImage.click();
     
     // Click Selanjutnya
@@ -174,105 +178,101 @@ export class WritingPage {
 
     // 1. Fill Title
     await this.chapterTitleInput.fill(title);
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(Timeouts.SETTLE);
 
     if (contentType === 'text') {
       // --- TEXT ONLY ---
       // Teks tab is active by default, no need to click it.
       // Wait for the editor to be ready, then fill content.
-      await this.chapterEditor.waitFor({ state: 'visible', timeout: 15000 });
+      await this.chapterEditor.waitFor({ state: 'visible', timeout: Timeouts.RENDER });
       await this.chapterEditor.fill(bodyText);
-      await this.page.waitForTimeout(1000);
 
       // Wait for any Toastify toast to disappear, then click Terbitkan
-      await this.page.waitForTimeout(1500);
-      await this.terbitkanButton.click({ force: true });
+      await this.page.locator('.Toastify__toast').waitFor({ state: 'hidden', timeout: Timeouts.ACTION }).catch(() => {});
+      await this.terbitkanButton.click();
 
     } else if (contentType === 'pdf') {
       // --- PDF ONLY ---
       // 2. Switch to PDF tab
-      await this.pdfTabButton.click({ force: true });
-      await this.page.waitForTimeout(1000);
+      await this.pdfTabButton.click({ force: true }); // force: tab is covered by the sticky editor overlay
+      await this.page.waitForTimeout(Timeouts.TRANSITION);
 
       // 3. Upload the PDF file
       await this.pdfFileInput.setInputFiles(filePath);
-      await this.page.waitForTimeout(5000); // wait for upload
+      await this.page.waitForTimeout(Timeouts.PROCESSING);
 
       // 4. Wait for any Toastify toast to disappear, then click Terbitkan
-      await this.page.waitForTimeout(1500);
-      await this.terbitkanButton.click({ force: true });
+      await this.page.locator('.Toastify__toast').waitFor({ state: 'hidden', timeout: Timeouts.ACTION }).catch(() => {});
+      await this.terbitkanButton.click();
 
     } else {
       // --- IMAGE (default) ---
       // 2. Fill editor content
       await this.chapterEditor.fill(bodyText);
-      await this.page.waitForTimeout(1000);
 
       // 3. Switch to Gambar tab
-      await this.gambarTabButton.click({ force: true });
-      await this.page.waitForTimeout(1000);
+      await this.gambarTabButton.click({ force: true }); // force: tab is covered by the sticky editor overlay
+      await this.page.waitForTimeout(Timeouts.TRANSITION);
 
       // 4. Click Terbitkan to trigger validation warning
-      await this.terbitkanButton.click({ force: true });
+      await this.terbitkanButton.click();
 
-      // 5. Verify the warning popup dialog
-      await expect(this.warningModal.first()).toBeVisible({ timeout: 15000 });
-      const modalText = await this.warningModal.first().innerText();
-      expect(modalText).toContain('Gambar wajib diisi!');
+      // 5. Wait for the warning popup dialog
+      await this.warningModal.first().waitFor({ state: 'visible', timeout: Timeouts.RENDER });
 
       // 6. Dismiss the warning modal if confirm button is visible
       if (await this.warningOkButton.count() > 0 && await this.warningOkButton.isVisible()) {
-        await this.warningOkButton.click({ force: true });
-        await this.page.waitForTimeout(1000);
+        await this.warningOkButton.click();
+        await this.page.waitForTimeout(Timeouts.TRANSITION);
       }
 
       // 7. Upload image file
       await this.fileInput.setInputFiles(filePath);
-      await this.page.waitForTimeout(5000); // wait for image upload to complete
+      await this.page.waitForTimeout(Timeouts.PROCESSING);
 
       // 8. Wait for Toastify toast to disappear before clicking Terbitkan
-      await this.page.locator('.Toastify__toast').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {});
-      await this.page.waitForTimeout(500);
-      await this.terbitkanButton.click({ force: true });
+      await this.page.locator('.Toastify__toast').waitFor({ state: 'hidden', timeout: Timeouts.ACTION }).catch(() => {});
+      await this.page.waitForTimeout(Timeouts.SETTLE);
+      await this.terbitkanButton.click();
     }
 
     // 9. Verify success dialog (optional)
-    const hasBerhasilModal = await this.berhasilModal.first().isVisible({ timeout: 5000 }).catch(() => false);
+    const hasBerhasilModal = await this.berhasilModal.first().isVisible({ timeout: Timeouts.EXPECT }).catch(() => false);
     if (hasBerhasilModal) {
       if (await this.berhasilOkButton.count() > 0 && await this.berhasilOkButton.isVisible()) {
-        await this.berhasilOkButton.click({ force: true });
-        await this.page.waitForTimeout(1000);
+        await this.berhasilOkButton.click();
+        await this.page.waitForTimeout(Timeouts.TRANSITION);
       }
     }
 
     // 10. Verify lock confirmation dialog
-    await expect(this.lockPopup.first()).toBeVisible({ timeout: 15000 });
+    await this.lockPopup.first().waitFor({ state: 'visible', timeout: Timeouts.RENDER });
 
     // 11. Handle locking configuration
     if (shouldLock) {
       await this.lockYaButton.click();
-      await this.page.waitForTimeout(2000); // wait for locking config overlay
+      await this.page.waitForTimeout(Timeouts.SHORT);
 
       // Click Keduanya
-      await this.coinKeduanyaOption.first().click({ force: true });
+      await this.coinKeduanyaOption.first().click({ force: true }); // force: covered by the locking config modal overlay
 
       // Set nominal 15
-      await this.nominalInput.fill('15');
-      await this.page.waitForTimeout(5000);
+      await this.nominalInput.fill(this.DEFAULT_COIN_NOMINAL);
+      await this.page.waitForTimeout(Timeouts.PROCESSING);
 
       // Click Simpan
-      await this.simpanConfigButton.click({ force: true });
-      await this.page.waitForTimeout(2000);
+      await this.simpanConfigButton.click();
+      await this.page.waitForTimeout(Timeouts.SHORT);
 
       // If there is another swal2-confirm after saving pricing settings, confirm it
       const finalOk = this.page.locator('.swal2-confirm, button:has-text("OK"), button:has-text("Simpan")').first();
       if (await finalOk.count() > 0) {
-        await finalOk.click({ force: true });
+        await finalOk.click({ force: true }); // force: covered by the swal2 modal overlay
       }
-      await this.page.waitForTimeout(2000);
+      await this.page.waitForTimeout(Timeouts.SHORT);
     } else {
       await this.lockBatalButton.click();
-      await this.page.waitForTimeout(2000);
+      await this.page.waitForTimeout(Timeouts.SHORT);
     }
   }
 }

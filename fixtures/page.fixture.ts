@@ -6,8 +6,8 @@ import { SettingsPage } from '../pages/SettingsPage.js';
 import { TimelinePage } from '../pages/TimelinePage.js';
 import { ProfilePage } from '../pages/ProfilePage.js';
 import { WritingPage } from '../pages/WritingPage.js';
-import { AuthApi } from '../api/AuthApi.js';
-import { URLs } from '../constants/URLs.js';
+import { ForgotPasswordPage } from '../pages/ForgotPasswordPage.js';
+import { RegisterPage } from '../pages/RegisterPage.js';
 
 // Extend base Playwright test type to include custom fixtures
 export type CustomFixtures = {
@@ -18,30 +18,11 @@ export type CustomFixtures = {
   timelinePage: TimelinePage;
   profilePage: ProfilePage;
   writingPage: WritingPage;
-  authApi: AuthApi;
+  forgotPasswordPage: ForgotPasswordPage;
+  registerPage: RegisterPage;
 };
 
 export const test = base.extend<CustomFixtures>({
-  // Configure page fixture
-  page: async ({ page }, use) => {
-    try {
-      // Query physical screen size dynamically
-      const screenSize = await page.evaluate(() => {
-        return {
-          width: window.screen.availWidth || window.screen.width || 1280,
-          height: window.screen.availHeight || window.screen.height || 720
-        };
-      });
-      // Set viewport to the monitor resolution
-      await page.setViewportSize(screenSize);
-    } catch (e) {
-      console.warn('Could not dynamically resize viewport:', e);
-    }
-
-    // Run the test with the prepared page context
-    await use(page);
-  },
-
   // Instantiate LoginPage POM via DI
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page));
@@ -77,9 +58,14 @@ export const test = base.extend<CustomFixtures>({
     await use(new WritingPage(page));
   },
 
-  // Instantiate AuthApi client via DI
-  authApi: async ({ request }, use) => {
-    await use(new AuthApi(request));
+  // Instantiate ForgotPasswordPage POM via DI
+  forgotPasswordPage: async ({ page }, use) => {
+    await use(new ForgotPasswordPage(page));
+  },
+
+  // Instantiate RegisterPage POM via DI
+  registerPage: async ({ page }, use) => {
+    await use(new RegisterPage(page));
   },
 });
 

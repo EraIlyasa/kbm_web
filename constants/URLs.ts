@@ -1,10 +1,11 @@
 export const URLs = {
   PAGES: {
     LOGIN: '/login',
-    DASHBOARD: '/dashboard',
+    REGISTER: '/register',
+    FORGOT_PASSWORD: '/forgot-password',
   },
   API: {
     AUTH_LOGIN: '/api/auth/login',
-    PRODUCTS: '/api/products',
+    RETURN_ALL: '/api/returnall/',
   },
 } as const;

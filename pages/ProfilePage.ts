@@ -21,7 +21,7 @@ export class ProfilePage {
     this.agreeButton = this.page.getByRole('button', { name: 'Setuju' });
     
     // Select toast success container or success alert elements
-    this.successNotification = this.page.locator('.toast, .alert-success, #toast-container');
+    this.successNotification = this.page.locator('.toast, .alert-success, #toast-container').first();
   }
 
   /**
