@@ -1,16 +1,7 @@
 import { Locator, Page } from '@playwright/test';
-import { Navbar } from '../components/Navbar.js';
-import { Sidebar } from '../components/Sidebar.js';
+import { Timeouts } from '../constants/Timeouts.js';
 
 export class DashboardPage {
-  // Composed components
-  public readonly navbar: Navbar;
-  public readonly sidebar: Sidebar;
-
-  // Mock dashboard locators
-  public readonly title: Locator;
-  public readonly productTable: Locator;
-
   // Live portal menu locators
   public readonly berandaLink: Locator;
   public readonly eventLink: Locator;
@@ -19,6 +10,10 @@ export class DashboardPage {
   public readonly sparkLink: Locator;
   public readonly ebookLink: Locator;
   public readonly topupButton: Locator;
+
+  // Navbar book search locators
+  public readonly searchInput: Locator;
+  public readonly searchButton: Locator;
   
   // Profile dropdown locators
   public readonly profileTrigger: Locator;
@@ -35,11 +30,6 @@ export class DashboardPage {
   };
 
   constructor(private readonly page: Page) {
-    this.navbar = new Navbar(this.page);
-    this.sidebar = new Sidebar(this.page);
-    this.title = this.page.getByRole('heading', { name: 'Dashboard', exact: true });
-    this.productTable = this.page.getByRole('table', { name: 'Products List' });
-
     const menuContainer = this.page.locator('#scrollbar-menu');
     this.berandaLink = menuContainer.getByRole('link', { name: 'Beranda', exact: true });
     this.eventLink = menuContainer.getByRole('link', { name: 'Event', exact: true });
@@ -51,6 +41,10 @@ export class DashboardPage {
     // Locate the Topup button flexibly as a link or button
     this.topupButton = this.page.getByRole('link', { name: 'Topup' })
       .or(this.page.getByRole('button', { name: 'Topup' }));
+
+    // Navbar book search form (placeholder "Cari judul buku...")
+    this.searchInput = this.page.getByPlaceholder('Cari judul buku');
+    this.searchButton = this.page.locator('button.searchButton');
 
     // Define profile trigger button (dropbtn or no_image or mock fallback)
     this.profileTrigger = this.page.locator('.dropbtn')
@@ -77,5 +71,20 @@ export class DashboardPage {
    */
   public async goto(): Promise<void> {
     await this.page.goto('/');
+  }
+
+  /**
+   * Opens the profile dropdown by hovering over the profile trigger.
+   */
+  public async openProfileMenu(): Promise<void> {
+    await this.profileTrigger.hover({ timeout: Timeouts.RENDER });
+  }
+
+  /**
+   * Searches for a book by its title via the navbar search form.
+   */
+  public async searchBook(title: string): Promise<void> {
+    await this.searchInput.fill(title);
+    await this.searchButton.click();
   }
 }

@@ -2,13 +2,17 @@
   "name": "kbm-web-2-playwright-enterprise",
   "version": "1.0.0",
   "description": "Enterprise Playwright Automation Framework",
-  "main": "index.js",
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
-    "test:smoke": "playwright test --project=chromium --grep @smoke",
-    "test:regression": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:chrome": "playwright test --project=chrome",
+    "test:safari": "playwright test --project=safari",
+    "test:smoke:chrome": "playwright test --project=chrome --grep @smoke",
+    "test:smoke:safari": "playwright test --project=safari --grep @smoke",
+    "test:smoke": "playwright test --project=firefox --grep @smoke",
+    "test:regression": "playwright test --project=firefox",
     "show-report": "playwright show-report"
   },
   "devDependencies": {

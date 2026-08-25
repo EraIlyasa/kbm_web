@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { Timeouts } from '../constants/Timeouts.js';
 
 export class TimelinePage {
   public readonly inputTimelineTrigger: Locator;
@@ -39,5 +40,33 @@ export class TimelinePage {
    */
   public getPostByCaption(caption: string): Locator {
     return this.page.locator('.card-feed-timeline', { hasText: caption });
+  }
+
+  /**
+   * Posts a timeline entry with a caption and an attached file.
+   */
+  public async postTimeline(caption: string, filePath: string): Promise<void> {
+    await this.captionInput.fill(caption);
+    await this.fileInput.setInputFiles(filePath);
+    await this.triggerFormValidation();
+    await this.postButton.click();
+  }
+
+  /**
+   * Likes a post card.
+   */
+  public async likePost(postCard: Locator): Promise<void> {
+    await postCard.locator('.like-post').first().click();
+  }
+
+  /**
+   * Opens the comment box on a post card, writes a comment, and submits it.
+   */
+  public async addComment(postCard: Locator, commentText: string): Promise<void> {
+    await postCard.locator('.comment-post').first().click();
+    const commentTextarea = postCard.locator('textarea[placeholder*="Tuliskan komentar"]').first();
+    await commentTextarea.waitFor({ state: 'visible', timeout: Timeouts.EXPECT });
+    await commentTextarea.fill(commentText);
+    await postCard.locator('button:has-text("Posting Komentar")').first().click();
   }
 }

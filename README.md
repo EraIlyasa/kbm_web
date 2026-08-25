@@ -9,7 +9,7 @@ This is a TypeScript-based, enterprise-grade Playwright automation framework des
 ├── tsconfig.json               # TypeScript strict mode settings
 ├── package.json                # Project dependencies and script commands
 ├── .env                        # Environment secrets (ignored by Git)
-├── .env.example                # Template for environment secrets
+├── .env.example                # Template for environment variables
 │
 ├── tests/                      # Business scenarios (No locators or assertions in page objects)
 │   └── auth/
@@ -31,6 +31,24 @@ This is a TypeScript-based, enterprise-grade Playwright automation framework des
 └── models/                     # TypeScript interfaces describing business entities
 ```
 
+## Environment Variables
+
+Copy `.env.example` to `.env` and fill in real values. Never commit real credentials.
+
+| Variable | Description |
+| --- | --- |
+| `BASE_URL` | Base URL of the application under test |
+| `WRITE_URL` | Base URL of the writing/editing application under test |
+| `MOCK_NETWORK` | *(optional — not consumed by current code)* Enable network mocking (`true`/`false`) |
+| `BROWSER` | *(optional — not consumed by current code)* Target browser (the suite is configured to run on `firefox`) |
+| `TEST_ACCOUNT_1_EMAIL` / `TEST_ACCOUNT_1_PASSWORD` | First test account credentials |
+| `TEST_ACCOUNT_2_EMAIL` / `TEST_ACCOUNT_2_PASSWORD` | Second test account credentials |
+| `TEST_ACCOUNT_3_EMAIL` / `TEST_ACCOUNT_3_PASSWORD` | Third test account credentials |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Admin user credentials (used by `UserBuilder`) |
+| `CUSTOMER_EMAIL` / `CUSTOMER_PASSWORD` | Customer user credentials (used by `UserBuilder`) |
+
+**Important:** Test account credentials must never be committed to the repository. Only the `.env` file (which is git-ignored) may contain real values.
+
 ## Getting Started
 
 1. Install dependencies:
@@ -38,7 +56,13 @@ This is a TypeScript-based, enterprise-grade Playwright automation framework des
    npm install
    ```
 
-2. Running the Tests:
+2. Configure the environment:
+   ```bash
+   cp .env.example .env
+   # then fill in real values, see "Environment Variables" above
+   ```
+
+3. Running the Tests:
    * **Headless Mode (Default/Background)**:
      ```bash
      npx playwright test
@@ -47,32 +71,22 @@ This is a TypeScript-based, enterprise-grade Playwright automation framework des
      ```bash
      npm run test
      ```
+   * **Smoke Tests (firefox, tag @smoke)**:
+     ```bash
+     npm run test:smoke
+     ```
+   * **Regression Tests (firefox)**:
+     ```bash
+     npm run test:regression
+     ```
    * **Running Specific Spec Files**:
      Untuk menjalankan file tes tertentu secara spesifik:
      ```bash
      # Menjalankan test authentication & profile saja
-     npx playwright test tests/auth/login-real.spec.ts
+     npx playwright test tests/auth/smoke-test.spec.ts
 
      # Menjalankan test pembuatan cerita & 11 bab saja
      npx playwright test tests/story/create-story.spec.ts
-     ```
-   * **Running in a Specific Environment (dev / beta)**:
-     Gunakan variable `ENV` sebelum command running test:
-     ```bash
-     # Jalankan di environment DEV (Default, memuat .env)
-     npx playwright test tests/auth/login-real.spec.ts
-
-     # Jalankan di environment BETA (Memuat .env.beta)
-     ENV=beta npx playwright test tests/auth/login-real.spec.ts
-     ```
-   * **Running on a Specific Browser/Project**:
-     Gunakan parameter `--project`:
-     ```bash
-     # Hanya jalankan di browser Firefox
-     npx playwright test tests/auth/login-real.spec.ts --project=firefox
-
-     # Contoh lengkap: Jalankan spec login di BETA menggunakan Firefox
-     ENV=beta npx playwright test tests/auth/login-real.spec.ts --project=firefox
      ```
    * **Headed Mode (Browser Terbuka)**:
      Untuk melihat jalannya pengujian di browser secara visual:
@@ -81,10 +95,7 @@ This is a TypeScript-based, enterprise-grade Playwright automation framework des
      npx playwright test --headed
 
      # Menjalankan spec tertentu secara spesifik dengan visual browser terbuka
-     npx playwright test tests/auth/login-real.spec.ts --headed
-
-     # Contoh lengkap: Jalankan spec login di BETA menggunakan Firefox dengan visual browser terbuka
-     ENV=beta npx playwright test tests/auth/login-real.spec.ts --project=firefox --headed
+     npx playwright test tests/auth/smoke-test.spec.ts --headed
      ```
    * **UI Mode (Interactive Dashboard)**:
      ```bash
@@ -103,7 +114,7 @@ This is a TypeScript-based, enterprise-grade Playwright automation framework des
      npm run test:debug
      ```
 
-3. Open HTML report:
+4. Open HTML report:
    ```bash
    npx playwright show-report
    ```
@@ -112,3 +123,18 @@ This is a TypeScript-based, enterprise-grade Playwright automation framework des
    npm run show-report
    ```
 
+## Browser Support
+
+The suite runs on a single `firefox` project. Chromium and WebKit are intentionally not configured: the application uses reCAPTCHA v2, which blocks automation in those engines. Run a specific project explicitly with:
+
+```bash
+npx playwright test --project=firefox
+```
+
+## Architecture Rules
+
+- **Page objects are action-oriented, no assertions** — `pages/` contain only interactions and navigation; assertions live exclusively in `tests/`.
+- **Single source of truth** — constants (URLs, roles, timeouts) live in `constants/`; never hardcode strings or numbers.
+- **Dependency injection** — tests use the custom fixtures from `fixtures/page.fixture.ts`; never instantiate page objects directly in tests.
+  - **Deliberate exception:** popup windows are not covered by the fixtures, so their page objects are instantiated directly in the spec against the popup page, e.g. `new TimelinePage(newPage)` for the timeline popup opened by `inputTimelineTrigger`.
+- **Secrets hygiene** — credentials are read from environment variables via `utils/EnvUtils.ts`; real values live only in the git-ignored `.env`.
