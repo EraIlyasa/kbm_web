@@ -8,6 +8,7 @@ import { ProfilePage } from '../pages/ProfilePage.js';
 import { WritingPage } from '../pages/WritingPage.js';
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage.js';
 import { RegisterPage } from '../pages/RegisterPage.js';
+import { BookPage } from '../pages/BookPage.js';
 
 // Extend base Playwright test type to include custom fixtures
 export type CustomFixtures = {
@@ -20,6 +21,7 @@ export type CustomFixtures = {
   writingPage: WritingPage;
   forgotPasswordPage: ForgotPasswordPage;
   registerPage: RegisterPage;
+  bookPage: BookPage;
 };
 
 export const test = base.extend<CustomFixtures>({
@@ -66,6 +68,11 @@ export const test = base.extend<CustomFixtures>({
   // Instantiate RegisterPage POM via DI
   registerPage: async ({ page }, use) => {
     await use(new RegisterPage(page));
+  },
+
+  // Instantiate BookPage POM via DI
+  bookPage: async ({ page }, use) => {
+    await use(new BookPage(page));
   },
 });
 

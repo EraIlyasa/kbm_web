@@ -32,7 +32,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 2 : undefined,
+  workers: process.env.CI ? 2 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['list'],
@@ -64,6 +64,14 @@ export default defineConfig({
       use: {
         ...devices['Desktop Firefox'],
       },
+    },
+    {
+      name: 'chrome',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'safari',
+      use: { ...devices['Desktop Safari'] },
     },
   ],
 });

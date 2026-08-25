@@ -86,11 +86,11 @@ export class WritingPage {
     
     // Warning modal "Gambar wajib diisi!"
     this.warningModal = this.page.locator('.swal2-modal, .modal.show, div[role="dialog"], .Toastify__toast, .Toastify__toast-body').filter({ hasText: 'Gambar wajib diisi!' });
-    this.warningOkButton = this.warningModal.locator('button:has-text("OK"), button:has-text("Tutup"), button:has-text("Batal"), .swal2-confirm').first();
-    
+    this.warningOkButton = this.warningModal.locator('button:has-text("OK"), button:has-text("Tutup"), button:has-text("Batal"), .swal2-confirm, .Toastify__close-button, button[aria-label="close"]').first();
+
     // Success modal "Berhasil"
     this.berhasilModal = this.page.locator('.swal2-modal, .modal.show, div[role="dialog"], .Toastify__toast, .Toastify__toast-body').filter({ hasText: 'Berhasil' });
-    this.berhasilOkButton = this.berhasilModal.locator('button:has-text("OK"), button:has-text("Tutup"), .swal2-confirm').first();
+    this.berhasilOkButton = this.berhasilModal.locator('button:has-text("OK"), button:has-text("Tutup"), .swal2-confirm, .Toastify__close-button, button[aria-label="close"]').first();
     
     // Lock dialog
     this.lockPopup = this.page.locator('.modal.show, div[role="dialog"], dialog').filter({ hasText: 'Apakah Anda ingin mengunci bab ini?' });
@@ -163,6 +163,25 @@ export class WritingPage {
   }
 
   /**
+   * Dismisses any visible Toastify toast by clicking its close button when the
+   * toast does not auto-dismiss in time. Falls back silently when no toast is
+   * present.
+   */
+  private async dismissToast(): Promise<void> {
+    const toast = this.page.locator('.Toastify__toast');
+    const closeButton = toast.locator('.Toastify__close-button, button[aria-label="close"]').first();
+
+    await toast.waitFor({ state: 'hidden', timeout: Timeouts.ACTION }).catch(() => {});
+
+    if (await toast.isVisible().catch(() => false)) {
+      if (await closeButton.count() > 0 && await closeButton.isVisible().catch(() => false)) {
+        await closeButton.click();
+      }
+      await toast.waitFor({ state: 'hidden', timeout: Timeouts.ACTION }).catch(() => {});
+    }
+  }
+
+  /**
    * Fills out a chapter with one of three content types and publishes it.
    * contentType: 'text' = teks editor only
    *              'pdf'  = switch to PDF tab and upload a PDF file
@@ -188,7 +207,7 @@ export class WritingPage {
       await this.chapterEditor.fill(bodyText);
 
       // Wait for any Toastify toast to disappear, then click Terbitkan
-      await this.page.locator('.Toastify__toast').waitFor({ state: 'hidden', timeout: Timeouts.ACTION }).catch(() => {});
+      await this.dismissToast();
       await this.terbitkanButton.click();
 
     } else if (contentType === 'pdf') {
@@ -202,7 +221,7 @@ export class WritingPage {
       await this.page.waitForTimeout(Timeouts.PROCESSING);
 
       // 4. Wait for any Toastify toast to disappear, then click Terbitkan
-      await this.page.locator('.Toastify__toast').waitFor({ state: 'hidden', timeout: Timeouts.ACTION }).catch(() => {});
+      await this.dismissToast();
       await this.terbitkanButton.click();
 
     } else {
@@ -230,9 +249,8 @@ export class WritingPage {
       await this.fileInput.setInputFiles(filePath);
       await this.page.waitForTimeout(Timeouts.PROCESSING);
 
-      // 8. Wait for Toastify toast to disappear before clicking Terbitkan
-      await this.page.locator('.Toastify__toast').waitFor({ state: 'hidden', timeout: Timeouts.ACTION }).catch(() => {});
-      await this.page.waitForTimeout(Timeouts.SETTLE);
+      // 8. Dismiss any lingering toast before clicking Terbitkan
+      await this.dismissToast();
       await this.terbitkanButton.click();
     }
 

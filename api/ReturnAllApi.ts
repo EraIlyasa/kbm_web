@@ -20,7 +20,6 @@ export class ReturnAllApi {
       },
       data: {
         secret: 'removeRegisteredEmail',
-        secretbgt: Credentials.BGT_SECRET,
       },
     });
   }

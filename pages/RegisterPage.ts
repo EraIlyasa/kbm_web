@@ -7,6 +7,7 @@ export class RegisterPage {
   public readonly passwordInput: Locator;
   public readonly confirmPasswordInput: Locator;
   public readonly submitButton: Locator;
+  public readonly successMessage: Locator;
 
   constructor(private readonly page: Page) {
     // { exact: true } prevents "Kata Sandi" from matching the "Konfirmasi Kata Sandi" label.
@@ -15,6 +16,7 @@ export class RegisterPage {
     this.confirmPasswordInput = this.page.getByLabel('Konfirmasi Kata Sandi', { exact: true });
     // #btn-register mirrors the #btn-forgot-password pattern used on ForgotPasswordPage.
     this.submitButton = this.page.locator('#btn-register');
+    this.successMessage = this.page.getByText('Email sudah terkirim');
   }
 
   /**
