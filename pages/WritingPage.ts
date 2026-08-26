@@ -57,30 +57,29 @@ export class WritingPage {
       .or(this.page.locator('.btn-primary', { hasText: 'Cerita Baru' }));
     
     this.titleInput = this.page.locator('input[name="title"]');
-    this.categoryInput = this.page.locator('#react-select-2-input');
+    this.categoryInput = this.page.getByRole('combobox');
     this.synopsisTextarea = this.page.locator('textarea[name="synopsis"]');
     this.keywordsInput = this.page.locator('input[placeholder="Tulis kata kunci dan klik ENTER"]');
     
-    this.editCoverButton = this.page.locator('button:has-text("Edit Cover")');
+    this.editCoverButton = this.page.getByRole('button', { name: 'Edit Cover' });
     this.kbmSampulOption = this.page.locator('.dropdown-item:has-text("Kbm Sampul")');
     this.firstCoverImage = this.page.locator('.modal-body img').first();
-    this.selanjutnyaButton = this.page.locator('button:has-text("Selanjutnya")');
+    this.selanjutnyaButton = this.page.getByRole('button', { name: 'Selanjutnya' });
     
     this.agreeCheckbox = this.page.locator('input#agree');
-    this.bersediaButton = this.page.locator('button:has-text("Bersedia")');
+    this.bersediaButton = this.page.getByRole('button', { name: 'Bersedia' });
     
     // Success popup modal
     this.successModal = this.page.locator('.modal.show, .modal, [role="dialog"], dialog').filter({ hasText: 'Selamat! Cerita kamu telah' });
-    this.tutupButton = this.successModal.locator('button:has-text("Tutup")');
+    this.tutupButton = this.successModal.getByRole('button', { name: 'Tutup' });
 
     // Chapter form page
     this.chapterTitleInput = this.page.getByPlaceholder('Tulis judul bab');
     this.chapterEditor = this.page.locator('.ql-editor');
-    // Use same filter pattern as gambarTabButton since it's proven to work
-    this.tekstTabButton = this.page.locator('div, span, a, button').filter({ hasText: /^Teks$/ }).first();
-    this.pdfTabButton = this.page.locator('div, span, a, button').filter({ hasText: /^PDF$/ }).first();
-    this.gambarTabButton = this.page.locator('div, span, a, button').filter({ hasText: /^Gambar$/ }).first();
-    this.terbitkanButton = this.page.locator('button:has-text("Terbitkan")');
+    this.tekstTabButton = this.page.getByRole('button', { name: 'Teks', exact: true });
+    this.pdfTabButton = this.page.getByRole('button', { name: 'PDF', exact: true });
+    this.gambarTabButton = this.page.getByRole('button', { name: 'Gambar', exact: true });
+    this.terbitkanButton = this.page.getByRole('button', { name: 'Terbitkan', exact: true });
     this.fileInput = this.page.locator('input[type="file"]').first();
     this.pdfFileInput = this.page.locator('input[type="file"][accept*="pdf"], input[type="file"]').first();
     
@@ -94,8 +93,8 @@ export class WritingPage {
     
     // Lock dialog
     this.lockPopup = this.page.locator('.modal.show, div[role="dialog"], dialog').filter({ hasText: 'Apakah Anda ingin mengunci bab ini?' });
-    this.lockYaButton = this.lockPopup.locator('button:has-text("Ya")');
-    this.lockBatalButton = this.lockPopup.locator('button:has-text("Batal")');
+    this.lockYaButton = this.lockPopup.getByRole('button', { name: 'Ya', exact: true });
+    this.lockBatalButton = this.lockPopup.getByRole('button', { name: 'Batal', exact: true });
     
     // Lock configuration screen
     this.coinKeduanyaOption = this.page.locator('button:has-text("Keduanya"), label:has-text("Keduanya"), input[value="both"]');
