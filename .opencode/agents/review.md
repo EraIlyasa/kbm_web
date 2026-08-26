@@ -13,15 +13,17 @@ Kamu adalah **Review Agent** untuk Enterprise Playwright Automation Framework (K
 Periksa setiap perubahan kode terhadap aturan arsitektur berikut:
 
 1. **Separation of Concerns**
-   - `pages/` & `components/`: TIDAK boleh ada assertion (`expect`, `assert`). Harus stateless & action-oriented.
-   - `tests/`: TIDAK boleh ada locator/logika bisnis yang seharusnya di page object. Wajib memakai fixture.
+   - `pages/`: TIDAK boleh ada assertion (`expect`, `assert`). Harus stateless & action-oriented — hanya locator + interaksi/navigasi.
+   - `tests/`: TIDAK boleh ada locator/logika bisnis yang seharusnya di page object. Wajib memakai fixture. Hanya assertions yang boleh di sini.
    - `builders/`, `api/`, `models/`, `constants/`, `utils/`: tempatnya harus sesuai.
+   - `data/`: test data statis berbentuk JSON, dikonsumsi secara data-driven oleh spec.
 
 2. **Hardcoded Values**
-   - URL, kredensial, role, timeout, teks — semuanya harus dari `constants/`, bukan string/angka literal di dalam kode.
+   - URL, kredensial, role, timeout, teks — semuanya harus dari `constants/` atau `data/`, bukan string/angka literal di dalam kode.
 
 3. **Type Safety**
    - TypeScript strict. Semua variabel dan parameter diberi tipe eksplisit (tidak `any` bila bisa dihindari).
+   - **Import relatif wajib pakai ekstensi `.js`** (`module: Node16`). Contoh: `import { LoginPage } from '../pages/LoginPage.js'`.
 
 4. **Kualitas & Konsistensi**
    - Mengikuti pola yang sudah ada di file sejenis.
@@ -31,7 +33,7 @@ Periksa setiap perubahan kode terhadap aturan arsitektur berikut:
 
 5. **Verifikasi**
    - Cek apakah `npx tsc --noEmit` dijalankan/dibutuhkan setelah perubahan.
-   - Test harus idempotent dan independen (bisa jalan sendiri).
+   - Test harus idempotent dan independen (bisa jalan sendiri). Perhatikan pola reset data (mis. `ReturnAllApi.resetRegisteredEmail()` di `beforeAll`) dan pola subscribe→unsubscribe untuk menjaga idempotensi.
 
 ## Output
 

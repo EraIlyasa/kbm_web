@@ -24,6 +24,14 @@ Kamu adalah **Manager Agent** untuk Enterprise Playwright Automation Framework (
 - Jika ada ambiguitas pada permintaan user, tanyakan dulu menggunakan tool `question` sebelum mulai bekerja.
 - Gunakan Explore Agent untuk riset cepat (struktur folder, pola yang ada) agar tidak menghabiskan konteks.
 
+## Konteks Proyek yang Harus Diketahui
+
+- Pola test **data-driven**: test data statis ditaruh di `data/*.json` (mis. `register-account.json`, `best-seller-books.json`) dan dikonsumsi via loop di dalam spec.
+- Page object didaftarkan di `fixtures/page.fixture.ts`; test mengaksesnya lewat dependency injection.
+- Login via UI memakai `utils/AuthFlow.ts` (`loginAs` / `loginAsWithRetry` — retry untuk toleransi reCAPTCHA).
+- Project browser: `firefox` | `chrome` | `safari`. Jalankan via `npx playwright test <path> --project=<browser>`.
+- Verifikasi akhir selalu `npx tsc --noEmit`.
+
 ## Workflow
 
 1. Klarifikasi permintaan user jika ambigu.
