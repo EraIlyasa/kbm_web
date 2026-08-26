@@ -17,3 +17,20 @@ export async function loginAs({ page, welcomePage, loginPage }: LoginContext, em
   await page.waitForURL((url) => url.pathname === '/', { timeout: Timeouts.NAVIGATION });
   await page.waitForLoadState('load');
 }
+
+/** Logs in with retry to tolerate intermittent reCAPTCHA v3 rate-limiting on the login form. */
+export async function loginAsWithRetry(context: LoginContext, email: string, password: string, attempts = 2): Promise<void> {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      await loginAs(context, email, password);
+      return;
+    } catch (error) {
+      lastError = error;
+      await context.page.waitForTimeout(Timeouts.PROCESSING);
+    }
+  }
+
+  throw lastError;
+}

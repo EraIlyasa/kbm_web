@@ -3,9 +3,13 @@ import { URLs } from '../constants/URLs.js';
 
 export class BookPage {
   public readonly bookTitle: Locator;
+  public readonly subscribeButton: Locator;
+  public readonly subscribeButtonText: Locator;
 
   constructor(private readonly page: Page) {
     this.bookTitle = this.page.getByRole('heading', { level: 1 });
+    this.subscribeButton = this.page.locator('button.subscribe-post');
+    this.subscribeButtonText = this.subscribeButton.locator('.button-text');
   }
 
   /**
@@ -27,5 +31,19 @@ export class BookPage {
    */
   public async openBook(title: string): Promise<void> {
     await this.getBookCard(title).click();
+  }
+
+  /**
+   * Subscribes to the book by clicking the Subscribe button.
+   */
+  public async subscribe(): Promise<void> {
+    await this.subscribeButton.click();
+  }
+
+  /**
+   * Unsubscribes from the book by clicking the Unsubscribe button.
+   */
+  public async unsubscribe(): Promise<void> {
+    await this.subscribeButton.click();
   }
 }

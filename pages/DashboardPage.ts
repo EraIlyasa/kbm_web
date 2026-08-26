@@ -87,4 +87,19 @@ export class DashboardPage {
     await this.searchInput.fill(title);
     await this.searchButton.click();
   }
+
+  /**
+   * Locates a book card in the "Today Best Seller" carousel by its title.
+   */
+  public getBestSellerBook(title: string): Locator {
+    return this.page.locator('.owl-story-1 a.book-content').filter({ has: this.page.locator(`img[alt*="${title}"]`) });
+  }
+
+  /**
+   * Opens a book from the "Today Best Seller" section by clicking its card.
+   */
+  public async openBestSellerBook(title: string): Promise<void> {
+    await this.getBestSellerBook(title).scrollIntoViewIfNeeded();
+    await this.getBestSellerBook(title).click();
+  }
 }
