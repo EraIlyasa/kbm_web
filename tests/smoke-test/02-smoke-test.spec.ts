@@ -1,6 +1,6 @@
 import { test, expect } from '../../fixtures/page.fixture.js';
-import { Credentials } from '../../constants/Credentials.js';
 import { Timeouts } from '../../constants/Timeouts.js';
+import { getTestAccount } from '../../utils/AuthFlow.js';
 
 test.describe('Forgot Password Specifications', () => {
 
@@ -29,7 +29,7 @@ test.describe('Forgot Password Specifications', () => {
     await page.waitForURL('**/forgot-password', { timeout: Timeouts.PAGE_LOAD });
 
     // 4. Input the email used for login
-    const account = Credentials.TEST_ACCOUNTS[0];
+    const account = getTestAccount();
 
     // 5. Verify the reCAPTCHA callback enabled the submit button, then submit.
     //    Step stops here — email delivery is NOT verified (captcha-constrained).

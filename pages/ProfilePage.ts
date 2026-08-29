@@ -12,6 +12,11 @@ export class ProfilePage {
   // Success Toast Notification
   public readonly successNotification: Locator;
 
+  // Quick menu action "Transfer" (circular icon with alt="Transfer")
+  public readonly transferMenu: Locator;
+  // Quick menu action "Tukar Koin" (circular icon)
+  public readonly tukarKoinMenu: Locator;
+
   constructor(private readonly page: Page) {
     this.fullNameInput = this.page.locator('#full_name');
     this.bioTextarea = this.page.locator('#bio');
@@ -22,6 +27,9 @@ export class ProfilePage {
     
     // Select toast success container or success alert elements
     this.successNotification = this.page.locator('.toast, .alert-success, #toast-container').first();
+
+    this.transferMenu = this.page.locator('[alt="Transfer"]').first();
+    this.tukarKoinMenu = this.page.locator('a.menu-action-item', { hasText: 'Tukar Koin' }).first();
   }
 
   /**
@@ -45,5 +53,19 @@ export class ProfilePage {
    */
   public async confirmChanges(): Promise<void> {
     await this.agreeButton.click();
+  }
+
+  /**
+   * Opens the coin transfer flow by clicking the circular "Transfer" quick menu.
+   */
+  public async openTransfer(): Promise<void> {
+    await this.transferMenu.click();
+  }
+
+  /**
+   * Opens the coin exchange flow by clicking the circular "Tukar Koin" quick menu.
+   */
+  public async openTukarKoin(): Promise<void> {
+    await this.tukarKoinMenu.click();
   }
 }

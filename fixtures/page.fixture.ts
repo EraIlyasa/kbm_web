@@ -9,6 +9,9 @@ import { WritingPage } from '../pages/WritingPage.js';
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage.js';
 import { RegisterPage } from '../pages/RegisterPage.js';
 import { BookPage } from '../pages/BookPage.js';
+import { TopupPage } from '../pages/TopupPage.js';
+import { TransferPage } from '../pages/TransferPage.js';
+import { ExchangePage } from '../pages/ExchangePage.js';
 
 // Extend base Playwright test type to include custom fixtures
 export type CustomFixtures = {
@@ -22,6 +25,9 @@ export type CustomFixtures = {
   forgotPasswordPage: ForgotPasswordPage;
   registerPage: RegisterPage;
   bookPage: BookPage;
+  topupPage: TopupPage;
+  transferPage: TransferPage;
+  exchangePage: ExchangePage;
 };
 
 export const test = base.extend<CustomFixtures>({
@@ -73,6 +79,21 @@ export const test = base.extend<CustomFixtures>({
   // Instantiate BookPage POM via DI
   bookPage: async ({ page }, use) => {
     await use(new BookPage(page));
+  },
+
+  // Instantiate TopupPage POM via DI
+  topupPage: async ({ page }, use) => {
+    await use(new TopupPage(page));
+  },
+
+  // Instantiate TransferPage POM via DI
+  transferPage: async ({ page }, use) => {
+    await use(new TransferPage(page));
+  },
+
+  // Instantiate ExchangePage POM via DI
+  exchangePage: async ({ page }, use) => {
+    await use(new ExchangePage(page));
   },
 });
 

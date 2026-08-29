@@ -1,12 +1,32 @@
 import { Page } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage.js';
 import { WelcomePage } from '../pages/WelcomePage.js';
+import { Credentials } from '../constants/Credentials.js';
 import { Timeouts } from '../constants/Timeouts.js';
 
 export interface LoginContext {
   page: Page;
   welcomePage: WelcomePage;
   loginPage: LoginPage;
+}
+
+export interface TestAccount {
+  email: string;
+  password: string;
+}
+
+/**
+ * Resolves the test account used for login.
+ *
+ * By default it rotates across `Credentials.TEST_ACCOUNTS` using `workerIndex`
+ * so parallel workers don't share an account. To force a specific account
+ * without touching code, set `TEST_ACCOUNT_INDEX` in `.env` (0-based).
+ */
+export function getTestAccount(workerIndex = 0): TestAccount {
+  const override = process.env.TEST_ACCOUNT_INDEX;
+  const parsed = override === undefined || override === '' ? NaN : Number(override);
+  const index = Number.isNaN(parsed) ? workerIndex : parsed;
+  return Credentials.TEST_ACCOUNTS[index % Credentials.TEST_ACCOUNTS.length];
 }
 
 /** Logs in via the UI and waits until the redirect to the home page completes. */
@@ -33,4 +53,13 @@ export async function loginAsWithRetry(context: LoginContext, email: string, pas
   }
 
   throw lastError;
+}
+
+/**
+ * Logs in with retry using the account resolved by `getTestAccount`. Convenience
+ * wrapper so specs don't repeat account selection logic.
+ */
+export async function loginAsTestUser(context: LoginContext, workerIndex = 0): Promise<void> {
+  const account = getTestAccount(workerIndex);
+  await loginAsWithRetry(context, account.email, account.password);
 }

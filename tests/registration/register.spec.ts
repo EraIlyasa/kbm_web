@@ -31,7 +31,7 @@ async function attemptRegister(
     .catch(() => false);
 }
 
-test.describe('User registration', { tag: ['@register', '@regression', '@lagitest'] }, () => {
+test.describe('User registration', { tag: ['@register', '@regression'] }, () => {
   test.beforeAll(async ({ request }) => {
     const returnAllApi = new ReturnAllApi(request);
     const resetResponse = await returnAllApi.resetRegisteredEmail();

@@ -1,7 +1,6 @@
 import { test, expect } from '../../fixtures/page.fixture.js';
-import { Credentials } from '../../constants/Credentials.js';
 import { Timeouts } from '../../constants/Timeouts.js';
-import { loginAs } from '../../utils/AuthFlow.js';
+import { loginAs, getTestAccount } from '../../utils/AuthFlow.js';
 import { todayStamp } from '../../utils/DateTimeUtils.js';
 import { generateContentBody } from '../../utils/TextUtils.js';
 import { requireEnv } from '../../utils/EnvUtils.js';
@@ -20,7 +19,7 @@ test.describe('Writer Studio and Story Creation Specifications', () => {
     test.setTimeout(420000);
 
     // Get current account dynamically based on workerIndex
-    const account = Credentials.TEST_ACCOUNTS[testInfo.workerIndex % Credentials.TEST_ACCOUNTS.length];
+    const account = getTestAccount(testInfo.workerIndex);
     console.log(`Worker #${testInfo.workerIndex} (${testInfo.project.name}) logging in with account: ${account.email}`);
 
     await test.step('Navigate to the landing page and login', async () => {
