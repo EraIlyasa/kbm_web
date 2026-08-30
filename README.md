@@ -115,7 +115,9 @@ Copy `.env.example` to `.env` and fill in real values. Never commit real credent
      ```
     * **Run by tagging but with custom conditions a.k.a doing test 5 times of each test cases**
     ```bash
-    npx playwright test --project=chrome --grep subscribe --repeat-each 5 --headed
+    npx playwright test --project=chrome --grep subscribe
+
+    npx playwright test --project=chrome --grep regression
     ```
 
 4. Open HTML report:

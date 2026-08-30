@@ -12,6 +12,9 @@ import { BookPage } from '../pages/BookPage.js';
 import { TopupPage } from '../pages/TopupPage.js';
 import { TransferPage } from '../pages/TransferPage.js';
 import { ExchangePage } from '../pages/ExchangePage.js';
+import { BookReviewPage } from '../pages/BookReviewPage.js';
+import { ChapterCommentPage } from '../pages/ChapterCommentPage.js';
+import { CategoryPage } from '../pages/CategoryPage.js';
 
 // Extend base Playwright test type to include custom fixtures
 export type CustomFixtures = {
@@ -28,6 +31,9 @@ export type CustomFixtures = {
   topupPage: TopupPage;
   transferPage: TransferPage;
   exchangePage: ExchangePage;
+  bookReviewPage: BookReviewPage;
+  chapterCommentPage: ChapterCommentPage;
+  categoryPage: CategoryPage;
 };
 
 export const test = base.extend<CustomFixtures>({
@@ -94,6 +100,21 @@ export const test = base.extend<CustomFixtures>({
   // Instantiate ExchangePage POM via DI
   exchangePage: async ({ page }, use) => {
     await use(new ExchangePage(page));
+  },
+
+  // Instantiate BookReviewPage POM via DI
+  bookReviewPage: async ({ page }, use) => {
+    await use(new BookReviewPage(page));
+  },
+
+  // Instantiate ChapterCommentPage POM via DI
+  chapterCommentPage: async ({ page }, use) => {
+    await use(new ChapterCommentPage(page));
+  },
+
+  // Instantiate CategoryPage POM via DI
+  categoryPage: async ({ page }, use) => {
+    await use(new CategoryPage(page));
   },
 });
 
