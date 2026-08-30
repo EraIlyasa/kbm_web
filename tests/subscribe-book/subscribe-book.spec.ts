@@ -1,7 +1,6 @@
 import { test, expect } from '../../fixtures/page.fixture.js';
-import { Credentials } from '../../constants/Credentials.js';
 import { Timeouts } from '../../constants/Timeouts.js';
-import { loginAsWithRetry } from '../../utils/AuthFlow.js';
+import { loginAsTestUser } from '../../utils/AuthFlow.js';
 import bestSellerBooks from '../../data/best-seller-books.json';
 
 test.describe('Book Subscribe Specifications', () => {
@@ -15,10 +14,8 @@ test.describe('Book Subscribe Specifications', () => {
     }, testInfo) => {
       test.setTimeout(180000);
 
-      const account = Credentials.TEST_ACCOUNTS[testInfo.workerIndex % Credentials.TEST_ACCOUNTS.length];
-
       await test.step('Navigate to the landing page and login', async () => {
-        await loginAsWithRetry({ page, welcomePage, loginPage }, account.email, account.password);
+        await loginAsTestUser({ page, welcomePage, loginPage }, 1);
       });
 
       await test.step('Open a book from the Today Best Seller section', async () => {
@@ -26,8 +23,13 @@ test.describe('Book Subscribe Specifications', () => {
         await page.waitForURL((url) => url.pathname.startsWith('/book/detail'), { timeout: Timeouts.PAGE_LOAD });
       });
 
-      await test.step('Subscribe to the book and verify the button turns green', async () => {
+      await test.step('Ensure the book starts in the not-subscribed state', async () => {
+        await expect(bookPage.subscribeButtonText).toHaveText(/Subscribe|Unsubscribe/, { timeout: Timeouts.RENDER });
+        await bookPage.ensureUnsubscribed();
         await expect(bookPage.subscribeButtonText).toHaveText('Subscribe', { timeout: Timeouts.RENDER });
+      });
+
+      await test.step('Subscribe to the book and verify the button turns green', async () => {
         await bookPage.subscribe();
         await expect(bookPage.subscribeButtonText).toHaveText('Unsubscribe', { timeout: Timeouts.RENDER });
         await expect(bookPage.subscribeButton).toHaveCSS('color', 'rgb(37, 211, 102)');

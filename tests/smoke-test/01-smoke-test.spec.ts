@@ -1,8 +1,7 @@
 import { test, expect } from '../../fixtures/page.fixture.js';
-import { Credentials } from '../../constants/Credentials.js';
 import { Timeouts } from '../../constants/Timeouts.js';
 import { TimelinePage } from '../../pages/TimelinePage.js';
-import { loginAs } from '../../utils/AuthFlow.js';
+import { loginAs, getTestAccount } from '../../utils/AuthFlow.js';
 import { todayStamp } from '../../utils/DateTimeUtils.js';
 import * as path from 'path';
 
@@ -21,7 +20,7 @@ test.describe('Real Authentication and Landing Menu Specifications', () => {
     test.setTimeout(180000);
 
     // Get current account dynamically based on workerIndex
-    const account = Credentials.TEST_ACCOUNTS[testInfo.workerIndex % Credentials.TEST_ACCOUNTS.length];
+    const account = getTestAccount(testInfo.workerIndex);
     console.log(`Worker #${testInfo.workerIndex} (${testInfo.project.name}) logging in with account: ${account.email}`);
 
     // Act

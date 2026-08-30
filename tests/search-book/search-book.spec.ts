@@ -1,7 +1,6 @@
 import { test, expect } from '../../fixtures/page.fixture.js';
-import { Credentials } from '../../constants/Credentials.js';
 import { Timeouts } from '../../constants/Timeouts.js';
-import { loginAs } from '../../utils/AuthFlow.js';
+import { loginAsTestUser } from '../../utils/AuthFlow.js';
 
 const BOOK_TITLE = 'Automation Novel Buku';
 
@@ -15,10 +14,8 @@ test.describe('Book Search Specifications', () => {
   }, testInfo) => {
     test.setTimeout(180000);
 
-    const account = Credentials.TEST_ACCOUNTS[testInfo.workerIndex % Credentials.TEST_ACCOUNTS.length];
-
     await test.step('Navigate to the landing page and login', async () => {
-      await loginAs({ page, welcomePage, loginPage }, account.email, account.password);
+      await loginAsTestUser({ page, welcomePage, loginPage }, testInfo.workerIndex);
     });
 
     await test.step('Search a book by its title', async () => {
