@@ -23,7 +23,7 @@ test.describe('Chapter Comment Specifications', () => {
     const comment = ChapterCommentPage.buildComment(todayStamp(), EMOTIKON);
 
     await test.step('Navigate to the landing page and login', async () => {
-      await loginAsTestUser({ page, welcomePage, loginPage }, testInfo.workerIndex);
+      await loginAsTestUser({ page, welcomePage, loginPage }, 2);
     });
 
     await test.step('Search the book and open the first result', async () => {

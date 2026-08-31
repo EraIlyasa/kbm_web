@@ -17,7 +17,7 @@ test.describe('Topup Specifications', () => {
     test.setTimeout(180000);
 
     await test.step('Navigate to the landing page and login', async () => {
-      await loginAsTestUser({ page, welcomePage, loginPage }, testInfo.workerIndex);
+      await loginAsTestUser({ page, welcomePage, loginPage }, 1);
     });
 
     await test.step('Open the topup package page', async () => {

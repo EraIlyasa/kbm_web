@@ -9,7 +9,7 @@ export class ChapterCommentPage {
   public readonly commentCard: Locator;
 
   constructor(private readonly page: Page) {
-    this.chapterCard = this.page.locator('a.card-chapter');
+    this.chapterCard = this.page.locator('a.card-chapter, .card-chapter, a[href*="/book/read"]');
     this.commentTextarea = this.page.locator('#text-comment-1');
     this.postCommentButton = this.page.locator('#btn-comment-1');
     this.successAlert = this.page.locator('.swal2-popup');
@@ -20,7 +20,14 @@ export class ChapterCommentPage {
    * Opens a chapter by its display name (e.g. "Bab 1") from the book detail page.
    */
   public async openChapter(name: string): Promise<void> {
-    await this.chapterCard.filter({ hasText: name }).first().click();
+    const chapter = this.page.locator('a[href*="/book/read"]').filter({ hasText: name }).first();
+    await chapter.scrollIntoViewIfNeeded();
+    const href = await chapter.getAttribute('href');
+    if (href) {
+      await this.page.goto(href);
+    } else {
+      await chapter.click();
+    }
   }
 
   /**

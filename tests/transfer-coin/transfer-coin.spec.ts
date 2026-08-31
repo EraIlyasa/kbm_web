@@ -3,8 +3,6 @@ import { Timeouts } from '../../constants/Timeouts.js';
 import { loginAsTestUser } from '../../utils/AuthFlow.js';
 
 // The Transfer quick menu is only available on the account at index 1 (kamalyasya20@gmail.com),
-// so login is pinned to that account instead of rotating per worker.
-const TRANSFER_ACCOUNT_INDEX = 1;
 const RECIPIENT_USERNAME = 'kbmkamal038';
 // Index of the recipient card to select in the search results (0-based).
 const RECIPIENT_CARD_INDEX = 1;
@@ -24,7 +22,7 @@ test.describe('Transfer Coin Specifications', () => {
     test.setTimeout(180000);
 
     await test.step('Navigate to the landing page and login', async () => {
-      await loginAsTestUser({ page, welcomePage, loginPage }, TRANSFER_ACCOUNT_INDEX);
+      await loginAsTestUser({ page, welcomePage, loginPage }, 1);
     });
 
     await test.step('Open the profile page from the profile dropdown', async () => {
