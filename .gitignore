@@ -14,7 +14,3 @@ reports/
 
 # OS metadata
 .DS_Store
-
-# Agent definition files & onboarding doc (kept local-only)
-.opencode/agents/
-AGENTS.md
