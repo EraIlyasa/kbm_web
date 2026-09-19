@@ -1,7 +1,7 @@
 import { test, expect } from '../../fixtures/page.fixture.js';
 import { Timeouts } from '../../constants/Timeouts.js';
 import { TimelinePage } from '../../pages/TimelinePage.js';
-import { loginAs, getTestAccount } from '../../utils/AuthFlow.js';
+import { loginAsWithRetry, getTestAccount } from '../../utils/AuthFlow.js';
 import { todayStamp } from '../../utils/DateTimeUtils.js';
 import * as path from 'path';
 
@@ -25,7 +25,7 @@ test.describe('Real Authentication and Landing Menu Specifications', () => {
 
     // Act
     await test.step('Navigate to the landing page and login', async () => {
-      await loginAs({ page, welcomePage, loginPage }, account.email, account.password);
+      await loginAsWithRetry({ page, welcomePage, loginPage }, account.email, account.password);
     });
 
     // Assert

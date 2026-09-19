@@ -12,11 +12,22 @@ This is a TypeScript-based, enterprise-grade Playwright automation framework des
 ├── .env.example                # Template for environment variables
 │
 ├── tests/                      # Business scenarios (No locators or assertions in page objects)
-│   └── auth/
+│   ├── auth.setup.ts           # Global auth setup (saves storageState once)
+│   ├── smoke-test/
+│   ├── story/
+│   ├── registration/
+│   ├── search-book/
+│   ├── chapter-comment/
+│   ├── book-review/
+│   ├── category/
+│   ├── topup/
+│   ├── transfer-coin/
+│   ├── tukar-koin/
+│   └── subscribe-book/
 │
 ├── pages/                      # Page Object Model files (Stateless, action-oriented, no assertions)
 │
-├── components/                 # Component Object Model files (Shared UI components)
+├── components/                 # Component Object Model files (Shared UI components — currently empty)
 │
 ├── fixtures/                   # Custom fixtures and dependency injection (Mock interceptors)
 │
@@ -25,6 +36,8 @@ This is a TypeScript-based, enterprise-grade Playwright automation framework des
 ├── builders/                   # Builders pattern for dynamic test data
 │
 ├── constants/                  # Unified constants (Roles, URLs, Timeouts)
+│
+├── data/                       # Static test data JSON (data-driven scenarios)
 │
 ├── utils/                      # Framework-independent pure function utilities
 │
@@ -82,20 +95,20 @@ Copy `.env.example` to `.env` and fill in real values. Never commit real credent
    * **Running Specific Spec Files**:
      Untuk menjalankan file tes tertentu secara spesifik:
      ```bash
-     # Menjalankan test authentication & profile saja
-     npx playwright test tests/auth/smoke-test.spec.ts
+     # Menjalankan smoke test authentication & landing menu
+     npx playwright test tests/smoke-test/01-smoke-test.spec.ts
 
-     # Menjalankan test pembuatan cerita & 11 bab saja
+     # Menjalankan test pembuatan cerita & 11 bab
      npx playwright test tests/story/create-story.spec.ts
      ```
    * **Headed Mode (Browser Terbuka)**:
      Untuk melihat jalannya pengujian di browser secara visual:
      ```bash
-     # Menjalankan seluruh test suite dengan visual browser terbukan
+     # Menjalankan seluruh test suite dengan visual browser terbuka
      npx playwright test --headed
 
      # Menjalankan spec tertentu secara spesifik dengan visual browser terbuka
-     npx playwright test tests/auth/smoke-test.spec.ts --headed
+     npx playwright test tests/smoke-test/01-smoke-test.spec.ts --headed
      ```
    * **UI Mode (Interactive Dashboard)**:
      ```bash
@@ -113,7 +126,7 @@ Copy `.env.example` to `.env` and fill in real values. Never commit real credent
      ```bash
      npm run test:debug
      ```
-    * **Run by tagging but with custom conditions a.k.a doing test 5 times of each test cases**
+    * **Run by tagging but with custom conditions**
     ```bash
     npx playwright test --project=chrome --grep subscribe
 
@@ -131,11 +144,24 @@ Copy `.env.example` to `.env` and fill in real values. Never commit real credent
 
 ## Browser Support
 
-The suite runs on a single `firefox` project. Chromium and WebKit are intentionally not configured: the application uses reCAPTCHA v2, which blocks automation in those engines. Run a specific project explicitly with:
+The suite is built on **4 projects**:
+
+- `setup` — runs `tests/auth.setup.ts` first, logs in once via UI and saves the session to `playwright/.auth/user.json` (used as `storageState`).
+- `firefox` — `Desktop Firefox`
+- `chrome` — `Desktop Chrome` (with `--disable-blink-features=AutomationControlled`)
+- `safari` — `Desktop Safari`
+
+`firefox`, `chrome`, and `safari` all set `storageState` to `playwright/.auth/user.json` and declare `dependencies: ['setup']`, so auth runs automatically before the browser projects.
+
+Run a specific project explicitly with:
 
 ```bash
 npx playwright test --project=firefox
+npx playwright test --project=chrome
+npx playwright test --project=safari
 ```
+
+Or use the npm scripts: `npm run test:firefox`, `npm run test:chrome`, `npm run test:safari`, plus smoke variants (`test:smoke`, `test:smoke:chrome`, `test:smoke:safari`).
 
 ## Architecture Rules
 

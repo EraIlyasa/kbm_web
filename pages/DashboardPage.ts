@@ -39,8 +39,8 @@ export class DashboardPage {
     this.ebookLink = menuContainer.getByRole('link', { name: 'Ebook', exact: true });
     
     // Locate the Topup button flexibly as a link or button
-    this.topupButton = this.page.getByRole('link', { name: 'Topup' })
-      .or(this.page.getByRole('button', { name: 'Topup' }));
+    this.topupButton = this.page.getByRole('link', { name: 'Topup', exact: true })
+      .or(this.page.getByRole('button', { name: 'Topup', exact: true }));
 
     // Navbar book search form (placeholder "Cari judul buku...")
     this.searchInput = this.page.getByPlaceholder('Cari judul buku');
