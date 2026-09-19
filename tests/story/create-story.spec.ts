@@ -1,6 +1,6 @@
 import { test, expect } from '../../fixtures/page.fixture.js';
 import { Timeouts } from '../../constants/Timeouts.js';
-import { loginAs, getTestAccount, loginAsTestUser } from '../../utils/AuthFlow.js';
+import { loginAsWithRetry, getTestAccount } from '../../utils/AuthFlow.js';
 import { todayStamp } from '../../utils/DateTimeUtils.js';
 import { generateContentBody } from '../../utils/TextUtils.js';
 import { requireEnv } from '../../utils/EnvUtils.js';
@@ -23,8 +23,7 @@ test.describe('Writer Studio and Story Creation Specifications', () => {
     console.log(`Worker #${testInfo.workerIndex} (${testInfo.project.name}) logging in with account: ${account.email}`);
 
     await test.step('Navigate to the landing page and login', async () => {
-      await loginAsTestUser({ page, welcomePage, loginPage }, 2);
-      // await loginAs({ page, welcomePage, loginPage }, account.email, account.password);
+      await loginAsWithRetry({ page, welcomePage, loginPage }, account.email, account.password);
     });
 
     await test.step('Navigate to Menulis (Writer Studio) portal', async () => {

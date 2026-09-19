@@ -126,7 +126,7 @@ Copy `.env.example` to `.env` and fill in real values. Never commit real credent
      ```bash
      npm run test:debug
      ```
-    * **Run by tagging but with custom conditions a.k.a doing test 5 times of each test cases**
+    * **Run by tagging but with custom conditions**
     ```bash
     npx playwright test --project=chrome --grep subscribe
 

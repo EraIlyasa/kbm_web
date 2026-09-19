@@ -15,7 +15,7 @@ test.describe('Book Search Specifications', () => {
     test.setTimeout(180000);
 
     await test.step('Navigate to the landing page and login', async () => {
-      await loginAsTestUser({ page, welcomePage, loginPage }, 1);
+      await loginAsTestUser({ page, welcomePage, loginPage }, testInfo.workerIndex);
     });
 
     await test.step('Search a book by its title', async () => {

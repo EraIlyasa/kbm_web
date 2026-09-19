@@ -23,7 +23,7 @@ test.describe('Chapter Comment Specifications', () => {
     const comment = ChapterCommentPage.buildComment(todayStamp(), EMOTIKON);
 
     await test.step('Navigate to the landing page and login', async () => {
-      await loginAsTestUser({ page, welcomePage, loginPage }, 2);
+      await loginAsTestUser({ page, welcomePage, loginPage }, testInfo.workerIndex);
     });
 
     await test.step('Search the book and open the first result', async () => {
@@ -36,7 +36,7 @@ test.describe('Chapter Comment Specifications', () => {
 
     await test.step('Open Bab 1 from the chapter section', async () => {
       await chapterCommentPage.openChapter(CHAPTER_NAME);
-      await page.waitForURL((url) => url.pathname.startsWith('/book/read'), { timeout: Timeouts.PAGE_LOAD });
+      await expect(page).toHaveURL(/\/book\/read/, { timeout: Timeouts.PAGE_LOAD });
     });
 
     await test.step('Scroll to the comment field', async () => {

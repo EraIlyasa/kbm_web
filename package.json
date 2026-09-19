@@ -13,6 +13,7 @@
     "test:smoke:safari": "playwright test --project=safari --grep @smoke",
     "test:smoke": "playwright test --project=firefox --grep @smoke",
     "test:regression": "playwright test --project=firefox",
+    "test:retry-failed": "playwright test --last-failed",
     "show-report": "playwright show-report"
   },
   "devDependencies": {

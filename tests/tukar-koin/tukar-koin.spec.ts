@@ -4,6 +4,7 @@ import { loginAsTestUser } from '../../utils/AuthFlow.js';
 
 // The Tukar Koin quick menu is only available on the account at index 1 (kamalyasya20@gmail.com),
 // so login is pinned to that account instead of rotating per worker.
+const EXCHANGE_ACCOUNT_INDEX = 1;
 const COIN_AMOUNT = '1';
 const E_WALLET_PIN = '123456';
 const SUCCESS_MESSAGE = 'Penukaran koin berhasil';
@@ -20,7 +21,7 @@ test.describe('Tukar Koin Specifications', () => {
     test.setTimeout(180000);
 
     await test.step('Navigate to the landing page and login', async () => {
-      await loginAsTestUser({ page, welcomePage, loginPage }, 1);
+      await loginAsTestUser({ page, welcomePage, loginPage }, EXCHANGE_ACCOUNT_INDEX);
     });
 
     await test.step('Open the profile page from the profile dropdown', async () => {
